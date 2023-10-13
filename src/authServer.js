@@ -40,14 +40,14 @@ app.post('/login', (req, res) => {
     const { userName, password } = req.body;
     const values = [userName, password];
     const sql =
-        'SELECT user_id, user_name FROM user WHERE user_name = ? && password = ?';
+        'SELECT user_id, role FROM user WHERE user_name = ? && password = ?';
     const query = db.query(sql, values, (err, results) => {
         if (err || results.length === 0)
             return res.sendStatus(401);
 
         const user = {
             userId: results[0].user_id,
-            userName: results[0].user_name,
+            role: results[0].role,
         };
         const tokens = generateTokens(user);
         updateRefreshToken(user.userId, tokens.refreshToken);

@@ -9,6 +9,7 @@ function verifyToken(req, res, next) {
     try {
         const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         req.userId = decode.userId;
+        req.role = decode.role;
         next();
     } catch (error) {
         return res.sendStatus(403);
