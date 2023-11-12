@@ -2,9 +2,16 @@ const express = require('express');
 const router = express.Router();
 
 const verifyToken = require('../middleware/auth');
-const verifyPermission = require('../middleware/permission')
+// const verifyPermission = require('../middleware/permission')
 const staffController = require('../controllers/staffController');
 
-router.get('/show', verifyToken, verifyPermission(['staff']), staffController.show);
+router.get('/show', staffController.show);
+router.get('/showReservation', staffController.showReservation);
+router.post(
+    '/confirmReservation',
+    verifyToken,
+    staffController.confirmReservation,
+);
+router.post('/bookBorrowing', verifyToken, staffController.createBookBorrowing);
 
 module.exports = router;
