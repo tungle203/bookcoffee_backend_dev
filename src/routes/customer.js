@@ -10,6 +10,7 @@ router.get('/branchInfo', customerController.getBranchInfo);
 router.get('/bookOfBranch', customerController.getBookOfBranch);
 router.post('/reservation', verifyToken, customerController.createReservation);
 router.post('/meeting', verifyToken, customerController.createMeeting);
+router.post('/showBookBorrowing', verifyToken, customerController.showBookBorrowing);
 
 
 module.exports = router;
