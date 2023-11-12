@@ -31,10 +31,11 @@ Run prettier
 [http://localhost:5000/signup](http://localhost:5000/signup): POST method to sign up new account by user_name, password, email, address
 
 ### _Customer API_
-[http://localhost:3000/api/customer/search?title=](http://localhost:3000/api/customer/search): GET method to search book by title
+[http://localhost:3000/api/customer/search?title=](http://localhost:3000/api/customer/search): GET method to search book by title, if no title, method will return all book
 ```json
 [
     {
+        "copy_id": 5,
         "title": "Anna Karenina",
         "author_name": "Lev Tolstoy",
         "genre": null,
@@ -45,12 +46,14 @@ Run prettier
         ]
     },
     {
+        "copy_id": 4,
         "title": "Junkie Hell",
         "author_name": "Dante Alighier",
         "genre": null,
         "publication_year": null,
         "branch": [
             "KTX B DHQG",
+            "Land mark 81",
             "Land mark 81"
         ]
     }
@@ -91,9 +94,48 @@ Run prettier
 ]
 ```
 [http://localhost:3000/api/customer/reservation](http://localhost:3000/api/customer/reservation): POST method to create reservation by address, quantity, date (format YYYY-MM-DD hh:mm:ss)\
-[http://localhost:3000/api/customer/meeting](http://localhost:3000/api/customer/meeting): POST method to create meeting by address, name, date (format YYYY-MM-DD hh:mm:ss), description
+[http://localhost:3000/api/customer/meeting](http://localhost:3000/api/customer/meeting): POST method to create meeting by address, name, date (format YYYY-MM-DD hh:mm:ss), description\
+[http://localhost:3000/api/customer/showBookBorrowing](http://localhost:3000/api/customer/showBookBorrowing): POST method to show all book borrowed by user\
+customer: no res.body           staff: req.body: user_name\
+```json
+[
+    {
+        "copy_id": 1,
+        "title": "The Double",
+        "borrowing_date": null
+    },
+    {
+        "copy_id": 2,
+        "title": "The Double",
+        "borrowing_date": null
+    }
+]
+```
 
 ### _Staff API_
+[http://localhost:3000/api/customer/showReservation](http://localhost:3000/api/staff/showReservation): GET method to return all reservation
+```json
+[
+    {
+        "reservation_id": 1,
+        "user_name": "tungle",
+        "address": "KTX B DHQG",
+        "reservation_date": "2023-12-20T05:12:12.000Z",
+        "quantity": 5
+    },
+    {
+        "reservation_id": 2,
+        "user_name": "tungle",
+        "address": "Land mark 81",
+        "reservation_date": "2023-12-20T05:12:12.000Z",
+        "quantity": 2
+    }
+]
+```
+[http://localhost:3000/api/customer/confirmReservation](http://localhost:3000/api/staff/confirmReservation): POST method to confirm the reservation by reservation_id\
+[http://localhost:3000/api/customer/bookBorrowing](http://localhost:3000/api/staff/bookBorrowing): POST method to create the book borrowing by user_name, copy_id\
+
+
 ### _Manager API_
 ### _Admin API_
 
