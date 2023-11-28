@@ -5,10 +5,10 @@ const db = require('./config/db');
 const route = require('./routes');
 
 // Connect DB
-db.connect((err) => {
-    if (err) throw err;
-    console.log('Mysql Connected...');
-});
+// db.connect((err) => {
+//     if (err) throw err;
+//     console.log('Mysql Connected...');
+// });
 // Body parser
 app.use(
     express.urlencoded({

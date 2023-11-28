@@ -7,10 +7,10 @@ const db = require('./config/db');
 const verifyToken = require('./middleware/auth');
 
 // Connect DB
-db.connect((err) => {
-    if (err) throw err;
-    console.log('Mysql Connected...');
-});
+// db.connect((err) => {
+//     if (err) throw err;
+//     console.log('Mysql Connected...');
+// });
 // Body parser
 app.use(
     express.urlencoded({
@@ -20,38 +20,39 @@ app.use(
 app.use(express.json());
 
 const generateTokens = (payload) => {
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '5m',
+    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        // expiresIn: '5m',
     });
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: '1h',
+    const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        // expiresIn: '1h',
     });
 
-    return { accessToken, refreshToken };
+    return { access_token, refresh_token };
 };
 
 const updateRefreshToken = (user_id, refreshToken) => {
     const values = [refreshToken, user_id];
     const sql = 'UPDATE User SET refresh_token = ? WHERE user_id = ? ';
-    const query = db.query(sql, values);
+    db.query(sql, values);
 };
 
 app.post('/login', (req, res) => {
-    const { userName, password } = req.body;
-    const values = [userName, password];
+    const { user_name, password } = req.body;
+    if(!user_name || !password) return res.sendStatus(400)
+
+    const values = [user_name, password];
     const sql =
         'SELECT user_id, role FROM user WHERE user_name = ? && password = ?';
-    const query = db.query(sql, values, (err, results) => {
-        if (err || results.length === 0)
-            return res.sendStatus(401);
+    db.query(sql, values, (err, results) => {
+        if (err || results.length === 0) return res.sendStatus(401);
 
         const user = {
             userId: results[0].user_id,
             role: results[0].role,
         };
         const tokens = generateTokens(user);
-        updateRefreshToken(user.userId, tokens.refreshToken);
-        res.json(tokens);
+        updateRefreshToken(user.userId, tokens.refresh_token);
+        res.json({ ...tokens, user_name });
     });
 });
 
@@ -61,9 +62,8 @@ app.post('/token', (req, res) => {
 
     const values = [refreshToken];
     const sql = 'SELECT user_id, user_name FROM user WHERE refresh_token = ?';
-    const query = db.query(sql, values, (err, results) => {
-        if (err || results.length === 0)
-            return res.sendStatus(401);
+    db.query(sql, values, (err, results) => {
+        if (err || results.length === 0) return res.sendStatus(401);
         const user = {
             userId: results[0].user_id,
             userName: results[0].user_name,
@@ -71,7 +71,7 @@ app.post('/token', (req, res) => {
         try {
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
             const tokens = generateTokens(user);
-            updateRefreshToken(user.userId, tokens.refreshToken);
+            updateRefreshToken(user.userId, tokens.refresh_token);
             res.json(tokens);
         } catch (error) {
             console.log(error);
@@ -85,6 +85,25 @@ app.post('/logout', verifyToken, (req, res) => {
     res.sendStatus(204);
 });
 
+app.post('/signup', (req, res) => {
+    const sql =
+        'INSERT INTO user(user_name, password, email, address)\
+    VALUE (?,?,?,?)';
+    const values = [
+        req.body.user_name,
+        req.body.password,
+        req.body.email,
+        req.body.address,
+    ];
+
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(409);
+        }
+        res.sendStatus(201);
+    });
+});
+
 app.listen(5000, () => {
-    console.log(`Server Started at ${5000}`);
+    console.log(`Auth Server Started at ${5000}`);
 });

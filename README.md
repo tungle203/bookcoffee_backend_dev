@@ -8,7 +8,7 @@ In the project directory, you can run:
 ### `npm start`
 Runs the server in [http://localhost:3000](http://localhost:3000)
 
-### `npm run dev`
+### `npm run auth`
 Runs the authentication server in [http://localhost:5000](http://localhost:5000)
 
 ### `npm run beautify`
@@ -31,11 +31,14 @@ Run prettier
 [http://localhost:5000/signup](http://localhost:5000/signup): POST method to sign up new account by user_name, password, email, address
 
 ### _Customer API_
-[http://localhost:3000/api/customer/search?title=](http://localhost:3000/api/customer/search): GET method to search book by title, if no title, method will return all book
+[http://localhost:3000/api/customer/search?title=&address=](http://localhost:3000/api/customer/search): GET method to search book by title and address, if no title, method will return all book
 ```json
 [
     {
-        "copy_id": 5,
+        "copy_id": [
+            5,
+            10
+        ],
         "title": "Anna Karenina",
         "author_name": "Lev Tolstoy",
         "genre": null,
@@ -46,7 +49,10 @@ Run prettier
         ]
     },
     {
-        "copy_id": 4,
+        "copy_id": [
+            4,
+            6
+        ]
         "title": "Junkie Hell",
         "author_name": "Dante Alighier",
         "genre": null,
@@ -54,7 +60,6 @@ Run prettier
         "branch": [
             "KTX B DHQG",
             "Land mark 81",
-            "Land mark 81"
         ]
     }
 ]
@@ -76,26 +81,9 @@ Run prettier
   }
 ]
 ```
-[http://localhost:3000/api/customer/bookofbranch?address=Land%20mark%2081](http://localhost:3000/api/customer/bookofbranch?address=Land%20mark%2081): GET method to get all book of a branch by branch address
-```json
-[
-  {
-    "title": "The Double",
-    "author_name": "Fyodor Dostoevsky",
-    "genre": null,
-    "publication_year": null
-  },
-  {
-    "title": "Junkie Hell",
-    "author_name": "Dante Alighier",
-    "genre": null,
-    "publication_year": null
-  }
-]
-```
 [http://localhost:3000/api/customer/reservation](http://localhost:3000/api/customer/reservation): POST method to create reservation by address, quantity, date (format YYYY-MM-DD hh:mm:ss)\
 [http://localhost:3000/api/customer/meeting](http://localhost:3000/api/customer/meeting): POST method to create meeting by address, name, date (format YYYY-MM-DD hh:mm:ss), description\
-[http://localhost:3000/api/customer/showBookBorrowing](http://localhost:3000/api/customer/showBookBorrowing): POST method to show all book borrowed by user\
+[http://localhost:3000/api/customer/showBookBorrowing](http://localhost:3000/api/customer/showBookBorrowing): GET method to show all book borrowed by user\
 customer: no res.body           staff: req.body: user_name\
 ```json
 [
