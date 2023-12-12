@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 class StaffController {
     show(req, res, next) {
-        const sql = 'SELECT * FROM user';
+        const sql = 'SELECT * FROM USER';
         db.query(sql, (err, results) => {
             if (err) next(err);
             res.json(results);
@@ -10,11 +10,11 @@ class StaffController {
     }
 
     showReservation(req, res) {
-        const sql = 'SELECT r.reservation_id, u.user_name, b.address, r.reservation_date, r.quantity FROM reservations AS r\
-        JOIN user AS u\
-        ON r.user_id = u.user_id\
-        JOIN branch AS b\
-        ON r.branch_id = b.branch_id'
+        const sql = 'SELECT r.reservationId, u.userName, b.address, r.reservationDate, r.quantity FROM RESERVATIONS AS r\
+        JOIN USER AS u\
+        ON r.userId = u.userId\
+        JOIN BRANCH AS b\
+        ON r.branchId = b.branchId'
         db.query(sql, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
@@ -23,11 +23,11 @@ class StaffController {
         });
     }
     confirmReservation(req, res) {
-        const reservationId = req.body.reservation_id;
+        const reservationId = req.body.reservationId;
         if (!reservationId) return res.sendStatus(400);
 
         const sql =
-            'UPDATE reservations SET staff_id = ?, is_confirm = TRUE WHERE reservation_id = ?';
+            'UPDATE RESERVATIONS SET staffId = ?, isConfirm = TRUE WHERE reservationId = ?';
         const values = [req.userId, reservationId];
 
         db.query(sql, values, (err) => {
@@ -39,23 +39,23 @@ class StaffController {
     }
 
     createBookBorrowing(req, res) {
-        const userName = req.body.user_name;
-        const copyId = req.body.copy_id;
+        const userName = req.body.userName;
+        const copyId = req.body.copyId;
         if (!userName || !copyId) return res.sendStatus(400);
 
-        const sql1 = 'SELECT user_id FROM user WHERE user_name = ?';
+        const sql1 = 'SELECT userId FROM USER WHERE userName = ?';
         db.query(sql1, [userName], (err, results) => {
-            if (!results[0].user_id) return res.sendStatus(400);
+            if (!results[0].userId) return res.sendStatus(400);
 
             const sql2 =
-                'INSERT INTO bookborrowings(user_id, copy_id, staff_id) VALUE (?,?,?)';
-            const values = [results[0].user_id, copyId, req.userId];
+                'INSERT INTO BOOKBORROWINGS(userId, copyId, staffId) VALUE (?,?,?)';
+            const values = [results[0].userId, copyId, req.userId];
 
             db.query(sql2, values, (err) => {
                 if (err) return res.sendStatus(500);
             });
 
-            const sql3 = 'UPDATE book_copy SET is_borrowed = TRUE WHERE copy_id = ?'
+            const sql3 = 'UPDATE bookCopy SET isBorrowed = TRUE WHERE copyId = ?'
             db.query(sql3, [copyId], err => {
                 if (err) return res.sendStatus(500);
                 res.sendStatus(201);

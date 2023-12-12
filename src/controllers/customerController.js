@@ -7,17 +7,17 @@ const convertBookFormat = (books) => {
     books.map((book) => {
         if (!titleMap[book.title]) {
             titleMap[book.title] = {
-                copy_id: [],
+                copyId: [],
                 title: book.title,
-                author_name: book.author_name,
+                authorName: book.authorName,
                 genre: book.genre,
-                publication_year: book.publication_year,
+                publicationYear: book.publicationYear,
                 branch: [],
             };
             result.push(titleMap[book.title]);
         }
-        if (!book.is_borrowed) {
-            titleMap[book.title].copy_id.push(book.copy_id);
+        if (!book.isBorrowed) {
+            titleMap[book.title].copyId.push(book.copyId);
             if(!titleMap[book.title].branch.includes(book.address)) {
                 titleMap[book.title].branch.push(book.address);
             }
@@ -30,23 +30,23 @@ const convertBookFormat = (books) => {
 class CustomerController {
     searchBook(req, res) {
         let sql =
-            'SELECT DISTINCT bc.copy_id, b.title, a.author_name, b.genre, b.publication_year, br.address, bc.is_borrowed\
-                        FROM book AS b\
-                        JOIN book_copy AS bc\
-                        ON  b.book_id = bc.book_id\
+            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, br.address, bc.isBorrowed\
+                        FROM BOOK AS b\
+                        JOIN bookCopy AS bc\
+                        ON  b.bookId = bc.bookId\
                         JOIN branch AS br\
-                        ON bc.branch_id = br.branch_id\
+                        ON bc.branchId = br.branchId\
                         JOIN author AS a\
-                        ON b.author_id = a.author_id ';
+                        ON b.authorId = a.authorId ';
         let values = []
 
         if (req.query.title && req.query.address) {
-            sql += 'WHERE (b.title LIKE ? OR a.author_name LIKE ?) AND br.address = ?';
+            sql += 'WHERE (b.title LIKE ? OR a.authorName LIKE ?) AND br.address = ?';
             values = [`%${req.query.title}%`, `%${req.query.title}%`, req.query.address];
         }
 
         if(req.query.title && !req.query.address) {
-            sql += 'WHERE b.title LIKE ? OR a.author_name LIKE ?';
+            sql += 'WHERE b.title LIKE ? OR a.authorName LIKE ?';
             values = [`%${req.query.title}%`, `%${req.query.title}%`];
         }
 
@@ -65,9 +65,9 @@ class CustomerController {
 
     getBranchInfo(req, res) {
         const sql =
-            'SELECT b.address, b.working_time, u.user_name, u.email FROM branch AS b\
+            'SELECT b.address, b.workingTime, u.userName, u.email FROM branch AS b\
         JOIN user AS u\
-        ON b.manager_id = u.user_id';
+        ON b.managerId = u.userId';
         db.query(sql, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
@@ -79,16 +79,16 @@ class CustomerController {
     createReservation(req, res) {
         if(!req.body.address || !req.body.quantity || !req.body.date) return res.sendStatus(400)
 
-        const branchIdQuery = 'SELECT branch_id FROM branch WHERE address = ?';
+        const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
             if (err) {
                 return res.sendStatus(500);
             }
 
-            const branchId = result[0].branch_id;
+            const branchId = result[0].branchId;
 
             const insertQuery =
-                'INSERT INTO reservations(user_id, branch_id, quantity, reservation_date) VALUES (?,?,?,?)';
+                'INSERT INTO reservations(userId, branchId, quantity, reservationDate) VALUES (?,?,?,?)';
             const values = [
                 req.userId,
                 branchId,
@@ -109,15 +109,15 @@ class CustomerController {
     createMeeting(req, res) {
         if(!req.body.address || !req.body.name || !req.body.date || !req.body.description) return res.sendStatus(400)
 
-        const branchIdQuery = 'SELECT branch_id FROM branch WHERE address = ?';
+        const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
             if (err) {
                 return res.sendStatus(500);
             }
 
-            const branchId = result[0].branch_id;
+            const branchId = result[0].branchId;
             const insertQuery =
-                'INSERT INTO meetings(host_id, branch_id, meeting_name, meeting_date, description) VALUES (?,?,?,?,?)';
+                'INSERT INTO meetings(hostId, branchId, meetingName, meetingDate, description) VALUES (?,?,?,?,?)';
             const values = [
                 req.userId,
                 branchId,
@@ -137,16 +137,16 @@ class CustomerController {
     }
 
     showBookBorrowing(req, res) {
-        const userName = req.body.user_name
+        const userName = req.body.userName
 
         const returnResult = userID => {
-            const sql = 'SELECT bc.copy_id, b.title, bb.borrowing_date\
+            const sql = 'SELECT bc.copyId, b.title, bb.borrowingDate\
             FROM bookborrowings AS bb\
-            JOIN book_copy AS bc\
-            ON bb.copy_id = bc.copy_id\
+            JOIN bookCopy AS bc\
+            ON bb.copyId = bc.copyId\
             JOIN book AS b\
-            ON bc.book_id = b.book_id\
-            WHERE bb.user_id = ?'
+            ON bc.bookId = b.bookId\
+            WHERE bb.userId = ?'
             db.query(sql, [userID], (err, results) => {
                 if(err) return res.sendStatus(500)
                 res.json(results)
@@ -154,11 +154,11 @@ class CustomerController {
         }
 
         if(userName) {
-            const sql1 = 'SELECT user_id FROM user WHERE user_name = ?'
+            const sql1 = 'SELECT userId FROM user WHERE userName = ?'
             db.query(sql1, [userName], (err, results) => {
                 if(err) return res.sendStatus(500)
                 if(!results[0]) return res.sendStatus(400)
-                returnResult(results[0].user_id)
+                returnResult(results[0].userId)
             })
         } else returnResult(req.userId)
     }
