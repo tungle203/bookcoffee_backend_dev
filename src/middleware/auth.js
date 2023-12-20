@@ -12,7 +12,15 @@ function verifyToken(req, res, next) {
         req.role = decode.role;
         next();
     } catch (error) {
-        return res.sendStatus(403);
+
+        // "message": "expired token" 
+        // "message": "invalid token"
+
+        if(error.message === 'jwt expired')
+            return res.status(403).send({ message: "expired token" });
+
+        return res.status(403).send({ message: "invalid token" });
+       
     }
 }
 
