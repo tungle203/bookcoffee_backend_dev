@@ -32,7 +32,7 @@ class CustomerController {
         let sql =
             'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, br.address, bc.isBorrowed\
                         FROM BOOK AS b\
-                        JOIN bookCopy AS bc\
+                        JOIN book_copy AS bc\
                         ON  b.bookId = bc.bookId\
                         JOIN branch AS br\
                         ON bc.branchId = br.branchId\
@@ -54,6 +54,8 @@ class CustomerController {
             sql += 'WHERE br.address = ?';
             values = [req.query.address];
         }
+        console.log(sql);
+        console.log(values);
 
         db.query(sql, values, (err, results) => {
             if (err) {
@@ -142,7 +144,7 @@ class CustomerController {
         const returnResult = userID => {
             const sql = 'SELECT bc.copyId, b.title, bb.borrowingDate\
             FROM bookborrowings AS bb\
-            JOIN bookCopy AS bc\
+            JOIN book_Copy AS bc\
             ON bb.copyId = bc.copyId\
             JOIN book AS b\
             ON bc.bookId = b.bookId\
