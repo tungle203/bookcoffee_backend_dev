@@ -65,7 +65,7 @@ class CustomerController {
 
     getBranchInfo(req, res) {
         const sql =
-            'SELECT b.address, b.workingTime, u.userName, u.email FROM branch AS b\
+            'SELECT b.address, b.workingTime, u.userName AS managerName, u.email FROM branch AS b\
         JOIN user AS u\
         ON b.managerId = u.userId';
         db.query(sql, (err, results) => {
