@@ -48,18 +48,16 @@ class StaffController {
             if (!results[0].userId) return res.sendStatus(400);
 
             const sql2 =
-                'INSERT INTO BOOKBORROWINGS(userId, copyId, staffId) VALUE (?,?,?)';
-            const values = [results[0].userId, copyId, req.userId];
+                'BEGIN;\
+                INSERT INTO BOOKBORROWINGS(userId, copyId, staffId) VALUE (?,?,?); \
+                UPDATE BOOKCOPY SET isBorrowed = TRUE WHERE copyId = ?;\
+                COMMIT';
+            const values = [results[0].userId, copyId, req.userId, copyId];
 
             db.query(sql2, values, (err) => {
                 if (err) return res.sendStatus(500);
-            });
-
-            const sql3 = 'UPDATE bookCopy SET isBorrowed = TRUE WHERE copyId = ?'
-            db.query(sql3, [copyId], err => {
-                if (err) return res.sendStatus(500);
                 res.sendStatus(201);
-            })
+            });
         });
     }
 }
