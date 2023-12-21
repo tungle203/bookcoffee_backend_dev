@@ -8,7 +8,7 @@ class AdminController {
 
     db.query(sql, (err,results) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.json(results);
     });
@@ -26,7 +26,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -42,7 +42,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -55,7 +55,7 @@ class AdminController {
 
     db.query(sql, (err,results) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.json(results);
     });
@@ -73,7 +73,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -89,7 +89,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -101,7 +101,7 @@ class AdminController {
 
     db.query(sql, (err,results) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.json(results);
     });
@@ -124,7 +124,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -145,7 +145,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });
@@ -163,7 +163,7 @@ class AdminController {
 
     db.query(sql, values, (err) => {
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
     });
 
@@ -189,7 +189,7 @@ class AdminController {
 
     // db.query(sql, values, (err) => {
     //     if (err) {
-    //         return res.sendStatus(409);
+    //         return res.sendStatus(500);
     //     }
     //     res.sendStatus(201);
     // });
