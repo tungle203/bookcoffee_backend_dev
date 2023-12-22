@@ -6,6 +6,8 @@ const verifyToken = require('../middleware/auth');
 const managerController = require('../controllers/managerController');
 
 router.get('/showStaff', managerController.showStaff);
-router.post('/addStaff', verifyToken, managerController.addStaff);
+router.get('/showCustomer', managerController.showCustomer);
+router.post('/addStaff', managerController.addStaff);
+router.delete('/deleteStaff', managerController.deleteStaff);
 
 module.exports = router;
