@@ -5,7 +5,6 @@ const verifyToken = require('../middleware/auth');
 // const verifyPermission = require('../middleware/permission')
 const adminController = require('../controllers/adminController');
 
-
 router.get('/showAuthor', adminController.showAuthor);
 router.post('/addAuthor', adminController.addAuthor);
 router.post('/changeAuthorinfo', adminController.changeAuthorinfo);

@@ -9,7 +9,10 @@ router.get('/search', customerController.searchBook);
 router.get('/branchInfo', customerController.getBranchInfo);
 router.post('/reservation', verifyToken, customerController.createReservation);
 router.post('/meeting', verifyToken, customerController.createMeeting);
-router.get('/showBookBorrowing', verifyToken, customerController.showBookBorrowing);
-
+router.get(
+    '/showBookBorrowing',
+    verifyToken,
+    customerController.showBookBorrowing,
+);
 
 module.exports = router;

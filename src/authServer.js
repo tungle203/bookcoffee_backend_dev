@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
-const cors = require('cors')
+const cors = require('cors');
 require('dotenv').config();
 
 const db = require('./config/db');
@@ -20,7 +20,7 @@ app.use(
 );
 app.use(express.json());
 
-app.use(cors())
+app.use(cors());
 const generateTokens = (payload) => {
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '5m',
@@ -40,7 +40,7 @@ const updateRefreshToken = (userId, refreshToken) => {
 
 app.post('/login', (req, res) => {
     const { userName, password } = req.body;
-    if(!userName || !password) return res.sendStatus(400)
+    if (!userName || !password) return res.sendStatus(400);
 
     const values = [userName, password];
     const sql =
@@ -66,7 +66,8 @@ app.post('/token', (req, res) => {
     const sql = 'SELECT userId, userName FROM user WHERE refreshToken = ?';
     db.query(sql, values, (err, results) => {
         if (err) return res.sendStatus(500);
-        if(results.length === 0 ) return res.status(403).send({ message: "invalid refreshToken" });
+        if (results.length === 0)
+            return res.status(403).send({ message: 'invalid refreshToken' });
         const user = {
             userId: results[0].userId,
             userName: results[0].userName,
@@ -77,10 +78,12 @@ app.post('/token', (req, res) => {
             updateRefreshToken(user.userId, tokens.refreshToken);
             res.json(tokens);
         } catch (error) {
-            if(error.message === 'jwt expired')
-                return res.status(403).send({ message: "expired refreshToken" });
+            if (error.message === 'jwt expired')
+                return res
+                    .status(403)
+                    .send({ message: 'expired refreshToken' });
 
-            return res.status(403).send({ message: "invalid refreshToken" });
+            return res.status(403).send({ message: 'invalid refreshToken' });
         }
     });
 });

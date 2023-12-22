@@ -18,7 +18,7 @@ const convertBookFormat = (books) => {
         }
         if (!book.isBorrowed) {
             titleMap[book.title].copyId.push(book.copyId);
-            if(!titleMap[book.title].branch.includes(book.address)) {
+            if (!titleMap[book.title].branch.includes(book.address)) {
                 titleMap[book.title].branch.push(book.address);
             }
         }
@@ -38,19 +38,24 @@ class CustomerController {
                         ON bc.branchId = br.branchId\
                         JOIN author AS a\
                         ON b.authorId = a.authorId ';
-        let values = []
+        let values = [];
 
         if (req.query.title && req.query.address) {
-            sql += 'WHERE (b.title LIKE ? OR a.authorName LIKE ?) AND br.address = ?';
-            values = [`%${req.query.title}%`, `%${req.query.title}%`, req.query.address];
+            sql +=
+                'WHERE (b.title LIKE ? OR a.authorName LIKE ?) AND br.address = ?';
+            values = [
+                `%${req.query.title}%`,
+                `%${req.query.title}%`,
+                req.query.address,
+            ];
         }
 
-        if(req.query.title && !req.query.address) {
+        if (req.query.title && !req.query.address) {
             sql += 'WHERE b.title LIKE ? OR a.authorName LIKE ?';
             values = [`%${req.query.title}%`, `%${req.query.title}%`];
         }
 
-        if(!req.query.title && req.query.address) {
+        if (!req.query.title && req.query.address) {
             sql += 'WHERE br.address = ?';
             values = [req.query.address];
         }
@@ -77,9 +82,10 @@ class CustomerController {
             res.json(results);
         });
     }
-    
+
     createReservation(req, res) {
-        if(!req.body.address || !req.body.quantity || !req.body.date) return res.sendStatus(400)
+        if (!req.body.address || !req.body.quantity || !req.body.date)
+            return res.sendStatus(400);
 
         const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
@@ -109,7 +115,13 @@ class CustomerController {
     }
 
     createMeeting(req, res) {
-        if(!req.body.address || !req.body.name || !req.body.date || !req.body.description) return res.sendStatus(400)
+        if (
+            !req.body.address ||
+            !req.body.name ||
+            !req.body.date ||
+            !req.body.description
+        )
+            return res.sendStatus(400);
 
         const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
@@ -139,30 +151,31 @@ class CustomerController {
     }
 
     showBookBorrowing(req, res) {
-        const userName = req.body.userName
+        const userName = req.body.userName;
 
-        const returnResult = userID => {
-            const sql = 'SELECT bc.copyId, b.title, bb.borrowingDate\
+        const returnResult = (userID) => {
+            const sql =
+                'SELECT bc.copyId, b.title, bb.borrowingDate\
             FROM bookborrowings AS bb\
             JOIN book_Copy AS bc\
             ON bb.copyId = bc.copyId\
             JOIN book AS b\
             ON bc.bookId = b.bookId\
-            WHERE bb.userId = ?'
+            WHERE bb.userId = ?';
             db.query(sql, [userID], (err, results) => {
-                if(err) return res.sendStatus(500)
-                res.json(results)
-            })
-        }
+                if (err) return res.sendStatus(500);
+                res.json(results);
+            });
+        };
 
-        if(userName) {
-            const sql1 = 'SELECT userId FROM user WHERE userName = ?'
+        if (userName) {
+            const sql1 = 'SELECT userId FROM user WHERE userName = ?';
             db.query(sql1, [userName], (err, results) => {
-                if(err) return res.sendStatus(500)
-                if(!results[0]) return res.sendStatus(400)
-                returnResult(results[0].userId)
-            })
-        } else returnResult(req.userId)
+                if (err) return res.sendStatus(500);
+                if (!results[0]) return res.sendStatus(400);
+                returnResult(results[0].userId);
+            });
+        } else returnResult(req.userId);
     }
 }
 
