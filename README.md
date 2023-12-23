@@ -103,7 +103,7 @@ staff: req.body: userName
 ```
 
 ### _Staff API_
-[http://localhost:4000/api/customer/showReservation](http://localhost:4000/api/staff/showReservation): GET method to return all reservation
+[http://localhost:4000/api/staff/showReservation](http://localhost:4000/api/staff/showReservation): GET method to return all reservation
 ```json
 [
     {
@@ -122,8 +122,8 @@ staff: req.body: userName
     }
 ]
 ```
-[http://localhost:4000/api/customer/confirmReservation](http://localhost:4000/api/staff/confirmReservation): POST method to confirm the reservation by reservationId\
-[http://localhost:4000/api/customer/bookBorrowing](http://localhost:4000/api/staff/bookBorrowing): POST method to create the book borrowing by userName, copyId\
+[http://localhost:4000/api/staff/confirmReservation](http://localhost:4000/api/staff/confirmReservation): POST method to confirm the reservation by reservationId\
+[http://localhost:4000/api/staff/bookBorrowing](http://localhost:4000/api/staff/bookBorrowing): POST method to create the book borrowing by userName, copyId
 
 
 ### _Manager API_
