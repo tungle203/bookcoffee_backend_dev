@@ -82,6 +82,73 @@ class managerController {
 
         })
     }
+    
+
+    addBook(req, res) {
+        // add book
+        const sql =
+            'INSERT INTO book(bookId, title, genre, publicationYear, availableCopies, salePrice, authorId)\
+    VALUES (?,?,?,?,?,?,?)';
+        const values = [
+            req.body.bookId,
+            req.body.title,
+            req.body.genre,
+            req.body.publicationYear,
+            req.body.availableCopies,
+            req.body.salePrice,
+            req.body.authorId,
+        ];
+
+        db.query(sql, values, (err) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.sendStatus(201);
+        });
+    }
+
+    changeBookinfo(req, res) {
+        const sql =
+            'UPDATE book SET title = ?, genre = ?, publicationYear = ?, availableCopies = ?, salePrice = ?, authorId = ? WHERE bookId = ?';
+        const values = [
+            req.body.title,
+            req.body.genre,
+            req.body.publicationYear,
+            req.body.availableCopies,
+            req.body.salePrice,
+            req.body.authorId,
+            req.body.bookId,
+        ];
+
+        db.query(sql, values, (err) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.sendStatus(201);
+        });
+    }
+
+    addBookCopies(req, res) {
+        for (let i = 0; i < req.body.numCopies; i++) {
+            const sql =
+                'INSERT INTO book_copy(branchId, bookId)\
+    VALUES (?,?)';
+            const values = [req.body.branchId, req.body.bookId];
+
+            db.query(sql, values, (err) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+            });
+
+            const sql1 =
+                'UPDATE book SET availableCopies = availableCopies - 1 WHERE bookId = ?';
+            db.query(sql1, [req.body.bookId], (err) => {
+                if (err) return res.sendStatus(500);
+            });
+        }
+        res.sendStatus(201);
+    }
 }
 
 module.exports = new managerController();
