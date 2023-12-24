@@ -127,9 +127,7 @@ staff: req.body: userName
 
 
 ### _Manager API_
-[http://localhost:4000/api/manager/showStaff?managerId=]: GET method to show Staff by branchId
-NOTE: managerId is required
-
+[http://localhost:4000/api/manager/showStaff]: GET method to show Staff managed by you
 ```json
 [
     {
