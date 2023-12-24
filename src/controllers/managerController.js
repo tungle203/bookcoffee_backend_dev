@@ -3,16 +3,21 @@ const db = require('../config/db');
 class managerController {
     showStaff(req, res) {
         const sql =
-            'SELECT * FROM USER JOIN WORK_ON ON USER.userId = WORK_ON.staffId WHERE USER.role = "staff" AND WORK_ON.branchId = ?';
-        const values = [req.query.branchId];
+            'SELECT userId,userName,email, USER.address,BRANCH.branchId ,  BRANCH.address AS workAt  FROM USER JOIN WORK_ON ON USER.userId = WORK_ON.staffId JOIN BRANCH ON WORK_ON.branchId = BRANCH.branchId  WHERE USER.role = "staff" AND BRANCH.managerId = ?';
+        const values = [req.userId];
         db.query(sql, values, (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
     }
     showCustomer(req, res) {
-        const sql = 'SELECT * FROM USER WHERE .role = "customer"';
-        db.query(sql, (err, results) => {
+        let sql = 'SELECT userId, userName, email, address, createdDate FROM USER WHERE role = "customer"';
+        let value = [];
+        if (req.query.userName) {
+            sql += 'AND userName LIKE ?';
+            value = [`%${req.query.userName}%`];
+        }
+        db.query(sql, value, (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
@@ -61,6 +66,73 @@ class managerController {
                 res.sendStatus(201);
             });
         });
+    }
+    
+
+    addBook(req, res) {
+        // add book
+        const sql =
+            'INSERT INTO book(bookId, title, genre, publicationYear, availableCopies, salePrice, authorId)\
+    VALUES (?,?,?,?,?,?,?)';
+        const values = [
+            req.body.bookId,
+            req.body.title,
+            req.body.genre,
+            req.body.publicationYear,
+            req.body.availableCopies,
+            req.body.salePrice,
+            req.body.authorId,
+        ];
+
+        db.query(sql, values, (err) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.sendStatus(201);
+        });
+    }
+
+    changeBookinfo(req, res) {
+        const sql =
+            'UPDATE book SET title = ?, genre = ?, publicationYear = ?, availableCopies = ?, salePrice = ?, authorId = ? WHERE bookId = ?';
+        const values = [
+            req.body.title,
+            req.body.genre,
+            req.body.publicationYear,
+            req.body.availableCopies,
+            req.body.salePrice,
+            req.body.authorId,
+            req.body.bookId,
+        ];
+
+        db.query(sql, values, (err) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.sendStatus(201);
+        });
+    }
+
+    addBookCopies(req, res) {
+        for (let i = 0; i < req.body.numCopies; i++) {
+            const sql =
+                'INSERT INTO book_copy(branchId, bookId)\
+    VALUES (?,?)';
+            const values = [req.body.branchId, req.body.bookId];
+
+            db.query(sql, values, (err) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+            });
+
+            const sql1 =
+                'UPDATE book SET availableCopies = availableCopies - 1 WHERE bookId = ?';
+            db.query(sql1, [req.body.bookId], (err) => {
+                if (err) return res.sendStatus(500);
+            });
+        }
+        res.sendStatus(201);
     }
 }
 
