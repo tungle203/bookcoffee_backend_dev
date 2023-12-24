@@ -1,10 +1,114 @@
--- Show information -- 
+-- Show information (GET) -- 
 
 localhost:3000/api/admin/showAuthor 
+
+[
+    {
+        "authorId": 1,
+        "authorName": "Fyodor Dostoevsky",
+        "bornDate": null,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    },
+    {
+        "authorId": 2,
+        "authorName": "Dante Alighier",
+        "bornDate": null,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    },
+    {
+        "authorId": 3,
+        "authorName": "Lev Tolstoy",
+        "bornDate": null,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    }
+]
+
+
+
 localhost:3000/api/admin/showBranch
+
+[
+    {
+        "branchId": 1,
+        "address": "KTX B DHQG",
+        "workingTime": null,
+        "managerId": 3,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    },
+    {
+        "branchId": 2,
+        "address": "Land mark 81",
+        "workingTime": null,
+        "managerId": 3,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    }
+]
+
 localhost:3000/api/admin/showBook
 
--- Modify information -- 
+[
+    {
+        "bookId": 1,
+        "title": "The Double",
+        "genre": null,
+        "publicationYear": null,
+        "availableCopies": null,
+        "salePrice": null,
+        "authorId": 1,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    },
+    {
+        "bookId": 2,
+        "title": "Junkie Hell",
+        "genre": null,
+        "publicationYear": null,
+        "availableCopies": null,
+        "salePrice": null,
+        "authorId": 2,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    },
+    {
+        "bookId": 3,
+        "title": "Anna Karenina",
+        "genre": null,
+        "publicationYear": null,
+        "availableCopies": null,
+        "salePrice": null,
+        "authorId": 3,
+        "createdDate": "2023-12-24T11:20:15.000Z"
+    }
+]
+
+
+localhost:3000/api/admin/showStaff2Manager
+
+[
+    {
+        "staffId": 3,
+        "userName": "tungle23",
+        "branchId": 1,
+        "address": null,
+        "role": "manager"
+    },
+    {
+        "staffId": 2,
+        "userName": "tungle2",
+        "branchId": 2,
+        "address": null,
+        "role": "staff"
+    },
+    {
+        "staffId": 3,
+        "userName": "tungle23",
+        "branchId": 2,
+        "address": null,
+        "role": "manager"
+    }
+]
+
+
+
+-- Modify information (POST) -- 
 
 localhost:3000/api/admin/addAuthor
 body:
@@ -21,6 +125,13 @@ body:
 	"authorName": varchar, 
 	"bornDate": Date, 
 }
+
+localhost:3000/api/admin/deleteAuthorinfo
+body:
+{
+	"authorId": INT,
+}
+
 
 localhost:3000/api/admin/addBranch
 body:
@@ -62,19 +173,34 @@ body:
 	"authorId": INT,
 }
 
+localhost:3000/api/admin/deleteBookinfo
+body:
+{
+
+	"bookId": INT,
+}
+
 localhost:3000/api/admin/addBookCopies  -- add number of book copies into branch id
 body:
 {
-	"numCopies": INT,
+	"numCopies": INT, -- numCopies < availableCopies -- 
 	"branchId": INT, 
 	"bookId": INT, 
 }
 
 
-localhost:3000/api/admin/Manager2Branch -- make a user into manager of a branch id 
+localhost:3000/api/admin/deleteStafffromBranch -- delete staff from work_on table
 body:
 {
-	"managerId": INT,
-	"branchId": INT, 
+
+	"staffId": INT,
+}
+
+localhost:3000/api/admin/addStaff2Branch -- if staffId is not exists in table work_on, add new
+body:
+{
+
+	"staffId": INT,
+	"branchId": INT,
 }
 
