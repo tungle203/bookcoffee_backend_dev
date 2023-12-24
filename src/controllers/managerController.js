@@ -3,64 +3,84 @@ const db = require('../config/db');
 class managerController {
     showStaff(req, res) {
         const sql =
-            'SELECT * FROM USER JOIN WORK_ON ON USER.userId = WORK_ON.staffId WHERE USER.role = "staff" AND WORK_ON.branchId = ?';
-        const values = [req.query.branchId];
-        db.query(sql, values, (err, results) => {
-            if (err) return res.sendStatus(500);
-            res.json(results);
-        });
-    }
-    showCustomer(req, res) {
-        const sql = 'SELECT * FROM USER WHERE .role = "customer"';
-        db.query(sql, (err, results) => {
-            if (err) return res.sendStatus(500);
-            res.json(results);
-        });
-    }
-    addStaff(req, res) {
-        if (!req.body.userId || !req.body.branchId) return res.sendStatus(400);
-        const sql1 =
-            'SELECT role FROM USER WHERE userId = ? AND role = "customer"';
-        db.query(sql1, [req.body.userId], (err, results) => {
-            if (!results[0].role) return res.sendStatus(401);
-            const sql2 =
-                '\
-                INSERT INTO WORK_ON(staffId, branchId) VALUES (?,?); \
-                UPDATE USER SET role = "staff" WHERE userId = ?;\
-                ';
-            const values = [
-                req.body.userId,
-                req.body.branchId,
-                req.body.userId,
-            ];
+            ' \
+            SELECT DISTINCT u.userName as staffName, u.email, u.address, w.workingDate FROM USER as u \
+            JOIN WORK_ON as w \
+            on u.userId = w.staffId \
+            WHERE w.branchId IN (SELECT branchId from WORK_ON \
+            WHERE staffId = ?) AND u.role = "staff"';
 
-            db.query(sql2, values, (err) => {
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            res.json(results);
+        });
+    }
+
+    addStaff(req, res) {
+        const staffId = req.body.userId;
+        if (!staffId) return res.sendStatus(400);
+        const sql = 'SELECT role FROM USER WHERE userId = ?';
+        db.query(sql, [staffId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            if(!results[0] || results[0].role !== 'customer') return res.sendStatus(400);
+
+            const sql1 = 'SELECT branchId FROM Work_on WHERE staffId = ?';
+            db.query(sql1, [req.userId], (err, results) => {
                 if (err) return res.sendStatus(500);
-                res.sendStatus(201);
+                const sql2 =
+                    'BEGIN;\
+                    INSERT INTO WORK_ON(staffId, branchId) VALUES (?,?); \
+                    UPDATE USER SET role = "staff" WHERE userId = ?;\
+                    COMMIT;';
+                const values = [ 
+                    staffId,
+                    results[0].branchId,
+                    staffId,
+                ];
+
+                db.query(sql2, values, (err) => {
+                    if (err) return res.sendStatus(500);
+                    res.sendStatus(201);
+                });
             });
         });
     }
     deleteStaff(req, res) {
-        if (!req.body.userId || !req.body.branchId) return res.sendStatus(400);
-        const sql1 = 'SELECT * FROM USER WHERE userId = ? AND role = "staff"';
-        db.query(sql1, [req.body.userId], (err, results) => {
-            if (!results[0]) return res.sendStatus(401);
-            const sql2 =
-                '\
+        const staffId = req.body.userId;
+        if (!staffId) return res.sendStatus(400);
+
+        const sql1 = 'SELECT branchId FROM WORK_ON as W \
+            JOIN user as u \
+            ON w.staffId = u.userId \
+            WHERE staffId = ? and u.role = "staff"';
+            db.query(sql1, [staffId], (err, staff) => {
+            if(err) return res.sendStatus(500);
+            if(!staff[0]) return res.sendStatus(400);
+
+            const sql2 = 'SELECT branchId FROM WORK_ON WHERE staffId = ?';
+            db.query(sql2, [req.userId], (err, manager) => {
+                if(err) return res.sendStatus(500);
+                if(manager[0].branchId !== staff[0].branchId) return res.sendStatus(400);
+
+                const sql3 =
+                'BEGIN;\
                 DELETE FROM WORK_ON WHERE staffId = ? AND branchId = ?; \
                 UPDATE USER SET role = "customer" WHERE userId = ?;\
-                ';
-            const values = [
-                req.body.userId,
-                req.body.branchId,
-                req.body.userId,
-            ];
+                COMMIT;';
+                const values = [
+                    staffId,
+                    staff[0].branchId,
+                    staffId,
+                ];
 
-            db.query(sql2, values, (err) => {
-                if (err) return res.sendStatus(500);
-                res.sendStatus(201);
-            });
-        });
+                db.query(sql3, values, (err) => {
+                    if (err) return res.sendStatus(500);
+                    res.sendStatus(201);
+                });
+
+            })
+
+        })
     }
 }
 

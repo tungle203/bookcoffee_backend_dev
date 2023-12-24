@@ -59,9 +59,7 @@ class CustomerController {
             sql += 'WHERE br.address = ?';
             values = [req.query.address];
         }
-        console.log(sql);
-        console.log(values);
-
+        
         db.query(sql, values, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
