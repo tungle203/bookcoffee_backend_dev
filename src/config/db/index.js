@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-require('dotenv').config()
+require('dotenv').config();
 
 //create database connection
 const connection = mysql.createPool({
@@ -10,7 +10,7 @@ const connection = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    multipleStatements: true
+    multipleStatements: true,
 });
 
 //connect to database
