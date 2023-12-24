@@ -127,6 +127,77 @@ staff: req.body: userName
 
 
 ### _Manager API_
-### _Admin API_
+[http://localhost:4000/api/manager/showStaff?managerId=]: GET method to show Staff by branchId
+NOTE: managerId is required
+
+```json
+[
+    {
+        "userId": 2,
+        "userName": "tungle2",
+        "email": null,
+        "workAt": "KTX B DHQG"
+    }
+]
+```
+[http://localhost:4000/api/manager/showCustomer?userName=tuan]: GET method to show Customer by userName, if not userName then show all
+```json
+[
+    {
+        "userId": 2,
+        "userName": "tungle2",
+        "email": null,
+        "address": null,
+        "workAt": "KTX B DHQG"
+    }
+]
+```
+localhost:4000/api/manager/addStaff: POST Method
+req.body:
+{
+	"userId": INT,
+	"branchId": INT
+}
+NOTE: get userId and branchId of Staff by showStaff
+
+localhost:4000/api/manager/deleteStaff: DELETE Method
+req.body:
+{
+	"userId": INT,
+	"branchId": INT
+}
+NOTE: get userId and branchId of Staff by showStaff
+
+localhost:4000/api/manager/addBook: POST Method
+body:
+{
+	"bookId": INT,
+	"title": varchar, 
+	"genre": varchar, 
+	"publicationYear": varchar,
+	"availableCopies": Int,
+	"salePrice": INT,
+	"authorId": INT,
+}
+
+localhost:4000/api/manager/changeBookinfo: POST Method
+body:
+{
+	"bookId": INT,
+	"title": varchar, 
+	"genre": varchar, 
+	"publicationYear": varchar,
+	"availableCopies": Int,
+	"salePrice": INT,
+	"authorId": INT,
+}
+
+localhost:4000/api/manager/addBookCopies: POST Method  -- add number of book copies into branch id
+body:
+{
+	"numCopies": INT,
+	"branchId": INT, 
+	"bookId": INT, 
+}
 
 
