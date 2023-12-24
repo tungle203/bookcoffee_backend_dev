@@ -48,6 +48,20 @@ class AdminController {
     });
     };
 
+    deleteAuthorinfo(req, res) {
+        const sql = 'DELETE FROM author where authorId = ?';
+    const values = [
+        req.body.authorId,
+    ];
+
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.sendStatus(201);
+    });
+    };
+
 
     showBranch(req,res) {
         const sql =
@@ -80,10 +94,11 @@ class AdminController {
     };
 
     changeBranchinfo(req, res) {
-        const sql = 'UPDATE branch SET address = ?, workingTime = ? WHERE branchId = ?';
+        const sql = 'UPDATE branch SET address = ?, workingTime = ?, managerId = ? WHERE branchId = ?';
     const values = [
         req.body.address,
         req.body.workingTime,
+        req.body.managerId,
         req.body.branchId,
     ];
 
@@ -94,6 +109,20 @@ class AdminController {
         res.sendStatus(201);
     });
     };
+
+    // deleteBranchinfo(req, res) {
+    //     const sql = 'DELETE from branch WHERE branchId = ?';
+    // const values = [
+    //     req.body.branchId,
+    // ];
+
+    // db.query(sql, values, (err) => {
+    //     if (err) {
+    //         return res.sendStatus(500);
+    //     }
+    //     res.sendStatus(201);
+    // });
+    // };
 
     showBook(req,res) {
         const sql =
@@ -151,6 +180,20 @@ class AdminController {
     });
     };
 
+    deleteBookinfo(req, res) {
+        const sql = 'DELETE from book WHERE bookId = ?';
+    const values = [
+        req.body.bookId,
+    ];
+
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.sendStatus(201);
+    });
+    };
+
     addBookCopies(req,res) {
         for (let i = 0; i < req.body.numCopies; i++) {
             const sql =
@@ -189,28 +232,67 @@ class AdminController {
 
     // db.query(sql, values, (err) => {
     //     if (err) {
-    //         return res.sendStatus(500);
+    //         return res.sendStatus(409);
     //     }
     //     res.sendStatus(201);
     // });
 
     // };
 
-    Manager2Branch(req, res) {
-        // add manager to branch
-        const sql = 'UPDATE branch SET managerId = ? WHERE branchId = ?';
-        db.query(sql, [req.body.managerId, req.body.branchId], err => {
-        if (err) return res.sendStatus(500);
-            });
+    showStaffandManager(req,res) {
+        const sql =
+        'select staffId, userName, branchId, address, role from user, work_on where staffId = userId';
 
-        // change user roll to manager
-        const sql1 = 'UPDATE user SET role = ? WHERE userId = ?';
-        db.query(sql1, ['manager',req.body.managerId], err => {
-        if (err) return res.sendStatus(500);
-            });
+    db.query(sql, (err,results) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.json(results);
+    });
+    };
 
-        res.sendStatus(201);    
-        };  
+    deleteStafffromBranch(req,res) {
+        const sql = 'DELETE from work_on WHERE staffId = ?';
+        const values = [
+            req.body.staffId,
+        ];
+    
+        db.query(sql, values, (err) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.sendStatus(201);
+        });
+    };
+
+    addStaff2Branch(req,res) {
+        const sql = 'select count(*) as count from work_on where staffId = ?';
+        const values1 = [
+            req.body.staffId,
+        ];
+    
+        db.query(sql, values1, (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            if (results[0].count == 0) {
+                const sql2 = 'insert into work_on(staffId, branchId) values(?, ?)';
+                const values2 = [
+                    req.body.staffId,
+                    req.body.branchId,
+                ];
+
+
+                db.query(sql2, values2, (err) => {
+                    if (err) {
+                        return res.sendStatus(500);
+                    }
+                });
+            }
+
+            res.sendStatus(201);
+        });
+    };
 
 }
 
