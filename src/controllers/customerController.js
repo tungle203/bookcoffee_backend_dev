@@ -1,3 +1,4 @@
+const path = require('path');
 const db = require('../config/db');
 
 const convertBookFormat = (books) => {
@@ -29,6 +30,37 @@ const convertBookFormat = (books) => {
 };
 
 class CustomerController {
+
+    // uploadAvatar(req, res) {
+    //     // create upload avatar function here
+    //     upload.single('avatar')(req, res, (err) => {
+    //         if (err) {
+    //             return res.sendStatus(500);
+    //         }
+    //         const sql = 'UPDATE user SET avatar = ? WHERE userId = ?';
+    //         const values = [req.file.originalname, req.userId];
+    //         db.query(sql, values, (err) => {
+    //             if (err) {
+    //                 return res.sendStatus(500);
+    //             }
+    //             res.send({ message: 'Upload avatar successfully' });
+    //         });
+    //     })
+    // }
+
+    getAvatar(req, res) {
+        const sql = 'SELECT avatar FROM user WHERE userId = ?';
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            if (!results[0].avatar) {
+                return res.sendStatus(404);
+            }
+            res.sendFile(path.join(__dirname, `../../${process.env.AVATAR_PATH}/${results[0].avatar}`));
+        });
+    }
+
     searchBook(req, res) {
         let sql =
             'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed\
