@@ -12,6 +12,7 @@ const convertBookFormat = (books) => {
                 authorName: book.authorName,
                 genre: book.genre,
                 publicationYear: book.publicationYear,
+                salePrice: book.salePrice,
                 branch: [],
             };
             result.push(titleMap[book.title]);
@@ -30,7 +31,7 @@ const convertBookFormat = (books) => {
 class CustomerController {
     searchBook(req, res) {
         let sql =
-            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, br.address, bc.isBorrowed\
+            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed\
                         FROM BOOK AS b\
                         JOIN book_copy AS bc\
                         ON  b.bookId = bc.bookId\

@@ -144,3 +144,55 @@ staff: req.body: userName
 req.body: userId \
 [http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
 req.body: userId
+
+[http://localhost:4000/api/staff/showDrinks](http://localhost:4000/api/staff/showDrinks): GET method to get all drinks
+```json
+[
+    {
+        "drinksId": 1,
+        "drinksName": "Coca",
+        "image": "https://www.coca-cola.com.sg/content/dam/GO/CokeZone/Common/ShareACokeSG/ShareACokeSG_1.jpg",
+        "price": [
+            10000,
+            20000,
+            30000
+        ],
+        "size": [
+            "S",
+            "M",
+            "L"
+        ]
+    },
+    {
+        "drinksId": 2,
+        "drinksName": "Pepsi",
+        "image": "https://www.coca-cola.com.sg/content/dam/GO/CokeZone/Common/ShareACokeSG/ShareACokeSG_1.jpg",
+        "price": [
+            10000,
+            20000,
+            30000
+        ],
+        "size": [
+            "S",
+            "M",
+            "L"
+        ]
+    }
+]
+```
+[http://localhost:4000/api/staff/addBill](http://localhost:4000/api/staff/addBill): POST method to create bill \
+`res.body:`
+```json
+[
+    {
+        "drinksId": 1,
+        "size": "M",
+        "quantity": 1
+    },
+    {
+        "drinksId": 2,
+        "size": "L",
+        "quantity": 2
+    }
+]
+```

@@ -1,11 +1,64 @@
 const db = require('../config/db');
 
+const convertDrinksFormat = (drinks) => {
+    const result = [];
+    const titleMap = {};
+
+    drinks.map((drink) => {
+        if (!titleMap[drink.drinksId]) {
+            titleMap[drink.drinksId] = {
+                drinksId: drink.drinksId,
+                drinksName: drink.drinksName,
+                image: drink.image,
+                price: [],
+                size: [],
+            };
+            result.push(titleMap[drink.drinksId]);
+        }
+        titleMap[drink.drinksId].size.push(drink.size);
+        titleMap[drink.drinksId].price.push(drink.price);
+    });
+
+    return result;
+};
+
 class StaffController {
-    show(req, res, next) {
-        const sql = 'SELECT * FROM USER';
+    showDrinks(req, res) {
+        const sql = 'SELECT d.drinksId, d.drinksName, d.image, ds.size, ds.price FROM DRINKS as d \
+        JOIN DRINKS_SIZE as ds \
+        ON d.drinksId = ds.drinksId';
         db.query(sql, (err, results) => {
-            if (err) next(err);
-            res.json(results);
+            if (err) return res.sendStatus(500);
+            res.json(convertDrinksFormat(results));
+        });
+    }
+
+    addDrinksBill(req, res) {
+        const sql = 'SELECT branchId FROM WORK_ON WHERE staffId = ?';
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            const sql1 = 'INSERT INTO BILL(staffId, branchId) VALUES (?,?);';
+            const values = [req.userId, results[0].branchId];
+
+            db.query(sql1, values, (err, results) => {
+                if (err) return res.sendStatus(500);
+                let sql2 = 'BEGIN; \
+                INSERT INTO DRINKS_BILL(billId, drinksId, size, count) VALUES ';
+                let values = [];
+                req.body.map((item) => {
+                    sql2 += '(?,?,?,?),';
+                    values.push(results.insertId);
+                    values.push(item.drinksId);
+                    values.push(item.size);
+                    values.push(item.quantity);
+                });
+                sql2 = sql2.slice(0, -1);
+                sql2 += '; COMMIT;';
+                db.query(sql2, values, (err) => {
+                    if (err) return res.sendStatus(500);
+                    res.sendStatus(201);
+                });
+            });
         });
     }
 
