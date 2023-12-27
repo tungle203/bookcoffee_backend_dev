@@ -2,16 +2,26 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const path = require('path');
+const multer = require('multer');
+
 require('dotenv').config();
 
 const db = require('./config/db');
 const verifyToken = require('./middleware/auth');
 
-// Connect DB
-// db.connect((err) => {
-//     if (err) throw err;
-//     console.log('Mysql Connected...');
-// });
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, process.env.AVATAR_PATH)
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // Body parser
 app.use(
     express.urlencoded({
@@ -93,20 +103,24 @@ app.post('/logout', verifyToken, (req, res) => {
     res.sendStatus(204);
 });
 
-app.post('/signup', (req, res) => {
+app.post('/signup', upload.single('avatar'), (req, res) => {
+    
+    const avatar = req.file ? req.file.filename : null;
     const sql =
-        'INSERT INTO user(userName, password, email, address)\
-    VALUE (?,?,?,?)';
+        'INSERT INTO user(userName, password, email, address, avatar)\
+    VALUE (?,?,?,?,?)';
     const values = [
         req.body.userName,
         req.body.password,
         req.body.email,
         req.body.address,
+        avatar,
     ];
 
     db.query(sql, values, (err) => {
+        if(err.code === 'ER_DUP_ENTRY') return res.status(409).send({message: 'username already exists'});
         if (err) {
-            return res.sendStatus(409);
+            return res.sendStatus(500);
         }
         res.sendStatus(201);
     });

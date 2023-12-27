@@ -29,9 +29,10 @@ Run prettier
 ```
 [http://localhost:5000/logout](http://localhost:5000/logout): POST method delete refresh token in db\
 [http://localhost:5000/token](http://localhost:5000/token): POST method to return new access token and refresh token when access token expire\
-[http://localhost:5000/signup](http://localhost:5000/signup): POST method to sign up new account by userName, password, email, address
+[http://localhost:5000/signup](http://localhost:5000/signup): POST method to sign up new account by userName, password, email, address, avatar(file)
 
 ### _Customer API_
+[http://localhost:4000/api/customer/getAvatar](http://localhost:4000/api/customer/getAvatar): GET method to get user avatar
 [http://localhost:4000/api/customer/search?title=&address=](http://localhost:4000/api/customer/search): GET method to search book by title and address, if no title, method will return all book
 ```json
 [
@@ -124,27 +125,6 @@ staff: req.body: userName
 ```
 [http://localhost:4000/api/staff/confirmReservation](http://localhost:4000/api/staff/confirmReservation): POST method to confirm the reservation by reservationId\
 [http://localhost:4000/api/staff/bookBorrowing](http://localhost:4000/api/staff/bookBorrowing): POST method to create the book borrowing by userName, copyId
-
-
-### _Manager API_
-[http://localhost:4000/api/manager/showStaff](http://localhost:4000/api/manager/showStaff): GET method to show staff managed
-
-```json
-[
-    {
-        "staffName": "tungle",
-        "email": null,
-        "address": null,
-        "workingDate": "2023-12-24T17:00:00.000Z"
-    }
-]
-```
-
-[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
-req.body: userId \
-[http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
-req.body: userId
-
 [http://localhost:4000/api/staff/showDrinks](http://localhost:4000/api/staff/showDrinks): GET method to get all drinks
 ```json
 [
@@ -180,6 +160,8 @@ req.body: userId
     }
 ]
 ```
+[http://localhost:4000/api/staff/:drinksId](http://localhost:4000/api/staff/:drinksId): GET method to get image file of drinks
+
 [http://localhost:4000/api/staff/addBill](http://localhost:4000/api/staff/addBill): POST method to create bill \
 `res.body:`
 ```json
@@ -196,3 +178,23 @@ req.body: userId
     }
 ]
 ```
+
+### _Manager API_
+[http://localhost:4000/api/manager/showStaff](http://localhost:4000/api/manager/showStaff): GET method to show staff managed
+
+```json
+[
+    {
+        "staffName": "tungle",
+        "email": null,
+        "address": null,
+        "workingDate": "2023-12-24T17:00:00.000Z"
+    }
+]
+```
+
+[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
+req.body: userId \
+[http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
+req.body: userId
+

@@ -6,6 +6,7 @@ const verifyToken = require('../middleware/auth');
 const staffController = require('../controllers/staffController');
 
 router.get('/showDrinks', staffController.showDrinks);
+router.get('/getDrinksImage/:drinksId', staffController.getDrinksImage);
 router.post('/addBill', verifyToken, staffController.addDrinksBill);
 router.get('/showReservation', verifyToken, staffController.showReservation);
 router.post(

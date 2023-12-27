@@ -1,3 +1,4 @@
+const path = require('path');
 const db = require('../config/db');
 
 const convertDrinksFormat = (drinks) => {
@@ -33,6 +34,19 @@ class StaffController {
         });
     }
 
+    getDrinksImage(req, res) {
+        const sql = 'SELECT image FROM DRINKS WHERE drinksId = ?';
+        db.query(sql, [req.params.drinksId], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            if (!results[0].image) {
+                return res.sendStatus(404);
+            }
+            res.sendFile(path.join(__dirname, `../../${process.env.DRINKS_PATH}/${results[0].image}`));
+        
+        });
+    }
     addDrinksBill(req, res) {
         const sql = 'SELECT branchId FROM WORK_ON WHERE staffId = ?';
         db.query(sql, [req.userId], (err, results) => {
