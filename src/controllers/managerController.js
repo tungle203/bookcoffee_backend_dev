@@ -11,9 +11,6 @@ class managerController {
             WHERE staffId = ?) AND u.role = "staff"';
 
         db.query(sql, [req.userId], (err, results) => {
-            'SELECT userId,userName,email, USER.address,BRANCH.branchId ,  BRANCH.address AS workAt  FROM USER JOIN WORK_ON ON USER.userId = WORK_ON.staffId JOIN BRANCH ON WORK_ON.branchId = BRANCH.branchId  WHERE USER.role = "staff" AND BRANCH.managerId = ?';
-        const values = [req.userId];
-        db.query(sql, values, (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
@@ -38,13 +35,12 @@ class managerController {
             if (err) return res.sendStatus(500);
             if(!results[0] || results[0].role !== 'customer') return res.sendStatus(400);
 
-            const sql1 = 'SELECT branchId FROM branch WHERE ManagerId = ?';
-            const value1 = [req.userId];
+            let sql1 = 'SELECT branchId FROM branch WHERE ManagerId = ?';
+            let value1 = [req.userId];
             if (req.body.branchAddress) {
-                sql1 = 'SELECT branchId FROM branch WHERE address LIKE ?';
+                sql1 = 'SELECT branchId FROM branch WHERE address = ?';
                 value1 = [req.body.branchAddress];
             }
-            console.log(sql1, value1);
             db.query(sql1, value1, (err, results) => {
                 if (err) return res.sendStatus(500);
                 if (!results[0]) return res.sendStatus(400);

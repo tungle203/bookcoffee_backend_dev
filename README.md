@@ -141,7 +141,39 @@ staff: req.body: userName
 ]
 ```
 
-[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
-req.body: userId (id of Staff) \
+[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff, 
+If there is no branchAddress, the method will find the branchID according to your managerID \
+req.body: userId (id of Staff), branchAddress (if any) \
 [http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
-req.body: userId
+req.body: userId, branchId
+
+[http://localhost:4000/api/manager/addBook]
+body:
+{
+	"bookId": INT,
+	"title": varchar, 
+	"genre": varchar, 
+	"publicationYear": varchar,
+	"availableCopies": Int,
+	"salePrice": INT,
+	"authorId": INT,
+}
+
+[http://localhost:4000/api/manager/changeBookinfo]
+body:
+{
+	"bookId": INT,
+	"title": varchar, 
+	"genre": varchar, 
+	"publicationYear": varchar,
+	"availableCopies": Int,
+	"salePrice": INT,
+	"authorId": INT,
+}
+
+[http://localhost:4000/api/manager/deleteBookinfo]
+body:
+{
+
+	"bookId": INT,
+}
