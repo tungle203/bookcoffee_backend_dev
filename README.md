@@ -140,59 +140,29 @@ staff: req.body: userName
 ]
 ```
 
-[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
-req.body: userId \
-[http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
-req.body: userId
-
-[http://localhost:4000/api/staff/showDrinks](http://localhost:4000/api/staff/showDrinks): GET method to get all drinks
+[http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff(add new User role = staff) \
+req.body: \
 ```json
 [
     {
-        "drinksId": 1,
-        "drinksName": "Coca",
-        "image": "https://www.coca-cola.com.sg/content/dam/GO/CokeZone/Common/ShareACokeSG/ShareACokeSG_1.jpg",
-        "price": [
-            10000,
-            20000,
-            30000
-        ],
-        "size": [
-            "S",
-            "M",
-            "L"
-        ]
-    },
-    {
-        "drinksId": 2,
-        "drinksName": "Pepsi",
-        "image": "https://www.coca-cola.com.sg/content/dam/GO/CokeZone/Common/ShareACokeSG/ShareACokeSG_1.jpg",
-        "price": [
-            10000,
-            20000,
-            30000
-        ],
-        "size": [
-            "S",
-            "M",
-            "L"
-        ]
+        "userName" : "tuan11",
+        "password" : 12345,
+        "email" : null,
+        "address" : null
     }
 ]
 ```
-[http://localhost:4000/api/staff/addBill](http://localhost:4000/api/staff/addBill): POST method to create bill \
-`res.body:`
+[http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
+req.body: userId
+
+[http://localhost:3000/api/admin/addBookCopies]  -- add number of book copies into branch id
+body:
 ```json
 [
     {
-        "drinksId": 1,
-        "size": "M",
-        "quantity": 1
-    },
-    {
-        "drinksId": 2,
-        "size": "L",
-        "quantity": 2
+    	"numCopies": INT, -- numCopies < availableCopies -- 
+    	"branchId": INT, 
+    	"bookId": INT, 
     }
 ]
 ```
