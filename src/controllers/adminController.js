@@ -94,11 +94,10 @@ class AdminController {
     };
 
     changeBranchinfo(req, res) {
-        const sql = 'UPDATE branch SET address = ?, workingTime = ?, managerId = ? WHERE branchId = ?';
+        const sql = 'UPDATE branch SET address = ?, workingTime = ?, WHERE branchId = ?';
     const values = [
         req.body.address,
         req.body.workingTime,
-        req.body.managerId,
         req.body.branchId,
     ];
 
@@ -110,19 +109,19 @@ class AdminController {
     });
     };
 
-    // deleteBranchinfo(req, res) {
-    //     const sql = 'DELETE from branch WHERE branchId = ?';
-    // const values = [
-    //     req.body.branchId,
-    // ];
+    deleteBranchinfo(req, res) {
+        const sql = 'DELETE from branch WHERE branchId = ?';
+    const values = [
+        req.body.branchId,
+    ];
 
-    // db.query(sql, values, (err) => {
-    //     if (err) {
-    //         return res.sendStatus(500);
-    //     }
-    //     res.sendStatus(201);
-    // });
-    // };
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.sendStatus(201);
+    });
+    };
 
     showBook(req,res) {
         const sql =
@@ -219,25 +218,24 @@ class AdminController {
         res.sendStatus(201);
     };
     
-    // addDrinks(req,res) {
-    //     // add book
-    //     const sql =
-    //     'INSERT INTO book(drinkId, drinksName, image)\
-    // VALUES (?,?,?)';
-    // const values = [
-    //     req.body.drinkId,
-    //     req.body.drinkName,
-    //     req.body.image,
-    // ];
+    addDrinks(req,res) {
+        // add book
+        const sql =
+        'INSERT INTO book(drinkId, drinksName, image)\
+    VALUES (?,?,?)';
+    const values = [
+        req.body.drinkId,
+        req.body.drinkName,
+    ];
 
-    // db.query(sql, values, (err) => {
-    //     if (err) {
-    //         return res.sendStatus(409);
-    //     }
-    //     res.sendStatus(201);
-    // });
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(409);
+        }
+        res.sendStatus(201);
+    });
 
-    // };
+    };
 
     showStaffandManager(req,res) {
         const sql =
@@ -251,10 +249,23 @@ class AdminController {
     });
     };
 
-    deleteStafffromBranch(req,res) {
-        const sql = 'DELETE from work_on WHERE staffId = ?';
+    showStaff(req,res) {
+        const sql =
+        'select staffId, userName, address, role from user, work_on where staffId = userId and branchId = ?';
+
+    db.query(sql, [req.params.branchId],(err,results) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.json(results);
+    });
+    };
+
+    deleteStaff(req,res) {
+        const sql = 'DELETE from work_on WHERE staffId = ? and branchId = ?';
         const values = [
             req.body.staffId,
+            req.params.branchId
         ];
     
         db.query(sql, values, (err) => {
@@ -265,35 +276,53 @@ class AdminController {
         });
     };
 
-    addStaff2Branch(req,res) {
-        const sql = 'select count(*) as count from work_on where staffId = ?';
-        const values1 = [
-            req.body.staffId,
-        ];
-    
-        db.query(sql, values1, (err, results) => {
+    async addStaff(req,res) {
+        const sql =
+        'INSERT INTO user(userName, password, email, address, role)\
+    VALUES (?,?,?,?,?)';
+    const values = [
+        req.body.userName,
+        req.body.password,
+        req.body.email,
+        req.body.address,
+        req.body.role,
+    ];
+
+    db.query(sql, values, (err) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+
+        let staffId = -1;
+        db.query("SELECT userId from user where userName = ?", [req.body.userName], (err, result) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (results[0].count == 0) {
-                const sql2 = 'insert into work_on(staffId, branchId) values(?, ?)';
-                const values2 = [
-                    req.body.staffId,
-                    req.body.branchId,
-                ];
+            let staffId = result[0].userId;
 
+            const sql1 = 'INSERT INTO WORK_ON(staffId, branchId) VALUES (?,?)';
 
-                db.query(sql2, values2, (err) => {
-                    if (err) {
-                        return res.sendStatus(500);
-                    }
-                });
+            db.query(sql1, [staffId, req.params.branchId], (err) => {
+                if (err) {
+                    return res.sendStatus(500);
             }
-
-            res.sendStatus(201);
+            
         });
+        if (req.body.role == 'manager') {
+            const sql2 = 'UPDATE branch set managerId = ? where branchId = ?'
+    
+            db.query(sql2, [staffId, req.params.branchId], (err) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+            });
+        }
+
+        });
+
+        res.sendStatus(201);
+    });
     };
 
 }
-
 module.exports = new AdminController();
