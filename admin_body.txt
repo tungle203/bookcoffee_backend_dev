@@ -80,7 +80,7 @@ localhost:3000/api/admin/showBook
 ]
 
 
-localhost:3000/api/admin/showStaff2Manager
+localhost:3000/api/admin/showStaffandManager
 
 [
     {
@@ -106,7 +106,21 @@ localhost:3000/api/admin/showStaff2Manager
     }
 ]
 
-
+localhost:3000/api/admin/branch/:branchId/showStaff -- :branchId truyền tham số branchId vào và có được staff của branch đó
+[
+    {
+        "staffId": 2,
+        "userName": "tungle2",
+        "address": null,
+        "role": "staff"
+    },
+    {
+        "staffId": 3,
+        "userName": "tungle23",
+        "address": null,
+        "role": "manager"
+    }
+]
 
 -- Modify information (POST) -- 
 
@@ -189,18 +203,21 @@ body:
 }
 
 
-localhost:3000/api/admin/deleteStafffromBranch -- delete staff from work_on table
+localhost:3000/api/admin/branch/:branchId/deleteStaff -- delete staff from work_on table
 body:
 {
 
 	"staffId": INT,
 }
 
-localhost:3000/api/admin/addStaff2Branch -- if staffId is not exists in table work_on, add new
+localhost:3000/api/admin/branch/:branchId/addStaff -- create new staff account, add to work_on table, if manager, add managerId to branch
 body:
 {
 
-	"staffId": INT,
-	"branchId": INT,
+	"userName": VARCHAR,
+	"password": VARCHAR,
+	"email": VARCHAR,
+	"address": VARCHAR,
+	"role": VARCHAR -- only two options : "staff" and "manager"
 }
 
