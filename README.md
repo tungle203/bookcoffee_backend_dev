@@ -180,4 +180,11 @@ staff: req.body: userName
 
 [http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
 req.body: userId
+[http://localhost:3000/api/admin/addBookCopies]  -- add number of book copies into branch id
+body:
+{
+	"numCopies": INT, -- numCopies < availableCopies -- 
+	"branchId": INT, 
+	"bookId": INT, 
+}
 
