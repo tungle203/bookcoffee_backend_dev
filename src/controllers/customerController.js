@@ -9,22 +9,20 @@ const convertBookFormat = (books) => {
         if (!titleMap[book.title]) {
             titleMap[book.title] = {
                 copyId: [],
+                branch: [],
+                isBorrowed: [],
                 title: book.title,
                 authorName: book.authorName,
                 genre: book.genre,
                 publicationYear: book.publicationYear,
                 salePrice: book.salePrice,
-                branch: [],
             };
             result.push(titleMap[book.title]);
         }
-        if (!book.isBorrowed) {
             titleMap[book.title].copyId.push(book.copyId);
-            if (!titleMap[book.title].branch.includes(book.address)) {
-                titleMap[book.title].branch.push(book.address);
-            }
-        }
-    });
+            titleMap[book.title].branch.push(book.address);
+            titleMap[book.title].isBorrowed.push(book.isBorrowed);
+        });
 
     return result;
 };
