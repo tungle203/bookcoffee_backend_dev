@@ -77,27 +77,22 @@ class StaffController {
     }
 
     showReservation(req, res) {
-        let sql =
+        const sql =
             'SELECT r.reservationId, u.userName, b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
         JOIN USER AS u\
         ON r.userId = u.userId\
         JOIN BRANCH AS b\
-        ON r.branchId = b.branchId';
+        ON r.branchId = b.branchId\
+        WHERE r.branchId = ?';
 
-        if (req.role === 'staff' || req.role === 'manager') {
-            sql +=
-                ' JOIN WORK_ON AS w\
-            ON w.branchId = r.branchId\
-            WHERE w.staffId = ?';
-        }
-
-        db.query(sql, [req.userId], (err, results) => {
+        db.query(sql, [req.branchId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
             res.json(results);
         });
     }
+    
     confirmReservation(req, res) {
         const reservationId = req.body.reservationId;
         if (!reservationId) return res.sendStatus(400);
