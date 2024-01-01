@@ -10,6 +10,7 @@ function verifyToken(req, res, next) {
         const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         req.userId = decode.userId;
         req.role = decode.role;
+        req.branchId = decode.branchId;
         next();
     } catch (error) {
         // "message": "expired token"

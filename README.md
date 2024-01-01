@@ -24,7 +24,8 @@ Run prettier
     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTY5OTQxODk0NSwiZXhwIjoxNjk5NDI2MTQ1fQ.p0kSsupC3S5sbk7_hzvybqQUA7VM0EiMaYRDRhcu2GM",
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJjdXN0b21lciIsImlhdCI6MTY5OTQxODk0NSwiZXhwIjoxNjk5NDIyNTQ1fQ.Mo401XZg6XWeOEEO-QJ7_mhLtxzrJmFpb66_Ph5EsRo",
     "userName": "tungle123",
-    "role": "customer"
+    "role": "customer",
+    "branchId": "null"
 }
 ```
 [http://localhost:5000/logout](http://localhost:5000/logout): POST method delete refresh token in db\
@@ -87,7 +88,7 @@ Run prettier
 [http://localhost:4000/api/customer/meeting](http://localhost:4000/api/customer/meeting): POST method to create meeting by address, name, date (format YYYY-MM-DD hh:mm:ss), description\
 [http://localhost:4000/api/customer/showBookBorrowing](http://localhost:4000/api/customer/showBookBorrowing): GET method to show all book borrowed by user\
 customer: no res.body\
-staff: req.body: userName
+staff: `req.body`: userName
 ```json
 [
     {
@@ -185,16 +186,27 @@ staff: req.body: userName
 ```json
 [
     {
-        "staffName": "tungle",
+        "staffId": 2,
+        "staffName": "tungle2",
+        "disable": 1,
         "email": null,
         "address": null,
-        "workingDate": "2023-12-24T17:00:00.000Z"
+        "workingDate": "2023-12-31T17:00:00.000Z"
+    },
+    {
+        "staffId": 5,
+        "staffName": "tunglestaff",
+        "disable": 0,
+        "email": "tunglestaff@gmail.com",
+        "address": "KTX Khu B",
+        "workingDate": "2023-12-31T17:00:00.000Z"
     }
 ]
 ```
 
 [http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
-req.body: userId \
+`req.body`: staffName, password, email, address \
 [http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
-req.body: userId
-
+`req.body`: staffId
+[http://localhost:4000/api/manager/addBookCopy](http://localhost:4000/api/manager/addBookCopy): POST method to create book copy\
+`req.body`: numCopies, title

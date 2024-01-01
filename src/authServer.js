@@ -54,17 +54,21 @@ app.post('/login', (req, res) => {
 
     const values = [userName, password];
     const sql =
-        'SELECT userId, role FROM user WHERE userName = ? && password = ?';
+        'SELECT u.userId, u.role, u.disable, w.branchId FROM user AS u \
+        LEFT JOIN WORK_ON as w \
+        on u.userId = w.staffId \
+        WHERE u.userName = ? AND u.password = ?';
     db.query(sql, values, (err, results) => {
         if (err || results.length === 0) return res.sendStatus(401);
-
+        if(results[0].disable) return res.status(403).send({message: 'account is disabled'});
         const user = {
             userId: results[0].userId,
             role: results[0].role,
+            branchId: results[0].branchId,
         };
         const tokens = generateTokens(user);
         updateRefreshToken(user.userId, tokens.refreshToken);
-        res.json({ ...tokens, userName, role: user.role });
+        res.json({ ...tokens, userName, role: user.role, branchId: user.branchId });
     });
 });
 
