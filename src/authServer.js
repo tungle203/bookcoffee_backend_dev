@@ -82,12 +82,15 @@ app.post('/token', (req, res) => {
         if (err) return res.sendStatus(500);
         if (results.length === 0)
             return res.status(403).send({ message: 'invalid refreshToken' });
-        const user = {
-            userId: results[0].userId,
-            userName: results[0].userName,
-        };
+        
         try {
-            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            const user = {
+                userId: decode.userId,
+                userName: decode.userName,
+                role: decode.role,
+                branchId: decode.branchId,
+            };
             const tokens = generateTokens(user);
             updateRefreshToken(user.userId, tokens.refreshToken);
             res.json(tokens);
