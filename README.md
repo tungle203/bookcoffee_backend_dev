@@ -167,7 +167,17 @@ staff: req.body: userName
 ```
 
 [http://localhost:4000/api/manager/addStaff](http://localhost:4000/api/manager/addStaff): POST method to add staff \
-req.body: userId \
+```json
+[
+    {
+            req.body.userName,
+            req.body.password,
+            req.body.email,
+            req.body.address
+    }
+]
+```
+
 [http://localhost:4000/api/manager/deleteStaff](http://localhost:4000/api/manager/deleteStaff): DELETE method to delete staff \
 req.body: userId
 
