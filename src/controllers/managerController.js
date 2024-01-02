@@ -28,7 +28,6 @@ class managerController {
         ];
 
         db.query(sql, values, (err, results) => {
-            console.log(err);
             if(err && err.code === 'ER_DUP_ENTRY') return res.status(409).send({message: 'username already exists'});
             if (err) {
                 return res.sendStatus(500);
@@ -42,7 +41,7 @@ class managerController {
             });  
         });
     }
-    deleteStaff(req, res) {
+    updateStaff(req, res) {
         const staffId = req.body.staffId;
         if (!staffId) return res.sendStatus(400);
 
@@ -55,19 +54,8 @@ class managerController {
                 if(!staff[0]) return res.sendStatus(400);
 
                 if(staff[0].branchId !== req.branchId) return res.sendStatus(400);
-                    const sql2 =
-                    'BEGIN;\
-                    UPDATE USER SET disable = TRUE WHERE userId = ?; \
-                    COMMIT;';
-                    const values = [
-                        staffId,
-                        staff[0].branchId,
-                        staffId,
-                    ];
-
-                    // const sql = 'update user set role = "customer" where userId = ?';
-                    db.query(sql2, values, (err) => {
-                        console.log(err);
+                    const sql2 = 'UPDATE USER SET disable = !disable WHERE userId = ?;';
+                    db.query(sql2, [staffId], (err) => {
                         if (err) return res.sendStatus(500);
                         res.sendStatus(200);
                     });

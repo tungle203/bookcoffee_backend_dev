@@ -87,7 +87,6 @@ app.post('/token', (req, res) => {
             const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
             const user = {
                 userId: decode.userId,
-                userName: decode.userName,
                 role: decode.role,
                 branchId: decode.branchId,
             };
