@@ -122,6 +122,42 @@ class StaffController {
             res.sendStatus(201);
         });
     }
+
+    showBorrowBookAtBranch(req, res) {
+        let sql = 'SELECT bbb.borrowingId, bbb.customerName, bbb.citizenId, bbb.phoneNumber, bbb.borrowDate, bbb.returnDate, bbb.isReturn, b.title FROM BORROW_BOOK_AT_BRANCH AS bbb \
+        JOIN BOOK_COPY AS bc \
+        ON bbb.copyId = bc.copyId \
+        JOIN BOOK AS b \
+        ON bc.bookId = b.bookId';
+
+        if(req.role === 'staff') {
+            sql += ' WHERE bbb.staffId = ?';
+        }
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            res.json(results);
+        });
+    }
+
+    returnBookAtBranch(req, res) {
+        const borrowingId = req.body.borrowingId;
+        if (!borrowingId) return res.sendStatus(400);
+
+        const sql = 'SELECT copyId FROM BORROW_BOOK_AT_BRANCH WHERE borrowingId = ?';
+        db.query(sql, [borrowingId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            const sql1 = 'BEGIN; \
+            UPDATE BOOK_COPY SET isBorrowed = FALSE WHERE copyId = ?; \
+            UPDATE BORROW_BOOK_AT_BRANCH SET isReturn = TRUE WHERE borrowingId = ?; \
+            COMMIT;';
+            db.query(sql1, [results[0].copyId, borrowingId], (err) => {
+                if (err) return res.sendStatus(500);
+
+                res.sendStatus(200);
+            });
+        });
+    }
+
     borrowBookToGo(req, res) {
         const userName = req.body.userName;
         const copyId = req.body.copyId;
@@ -141,6 +177,43 @@ class StaffController {
             db.query(sql2, values, (err) => {
                 if (err) return res.sendStatus(500);
                 res.sendStatus(201);
+            });
+        });
+    }
+
+    showBorrowBookToGo(req, res) {
+        let sql = 'SELECT bbtg.borrowingId, u.userName, bbtg.borrowDate, bbtg.returnDate, bbtg.isReturn, bbtg.deposit, b.title FROM BORROW_BOOK_TO_GO AS bbtg \
+        JOIN BOOK_COPY AS bc \
+        ON bbtg.copyId = bc.copyId \
+        JOIN BOOK AS b \
+        ON bc.bookId = b.bookId \
+        JOIN USER AS u \
+        ON bbtg.userId = u.userId';
+
+        if(req.role === 'staff') {
+            sql += ' WHERE bbtg.staffId = ?';
+        }
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            res.json(results);
+        });
+    }
+
+    returnBookToGo(req, res) {
+        const borrowingId = req.body.borrowingId;
+        if (!borrowingId) return res.sendStatus(400);
+
+        const sql = 'SELECT copyId FROM BORROW_BOOK_TO_GO WHERE borrowingId = ?';
+        db.query(sql, [borrowingId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            const sql1 = 'BEGIN; \
+            UPDATE BOOK_COPY SET isBorrowed = FALSE WHERE copyId = ?; \
+            UPDATE BORROW_BOOK_TO_GO SET isReturn = TRUE, returnDate = current_timestamp WHERE borrowingId = ?; \
+            COMMIT;';
+            db.query(sql1, [results[0].copyId, borrowingId], (err) => {
+                if (err) return res.sendStatus(500);
+
+                res.sendStatus(200);
             });
         });
     }

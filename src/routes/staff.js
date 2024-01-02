@@ -15,6 +15,9 @@ router.post(
     staffController.confirmReservation,
 );
 router.post('/borrowBookAtBranch', verifyToken, staffController.borrowBookAtBranch);
+router.get('/showBorrowBookAtBranch', verifyToken, staffController.showBorrowBookAtBranch);
+router.post('/returnBookAtBranch', verifyToken, staffController.returnBookAtBranch);
 router.post('/borrowBookToGo', verifyToken, staffController.borrowBookToGo);
-
+router.get('/showBorrowBookToGo', verifyToken, staffController.showBorrowBookToGo);
+router.post('/returnBookToGo', verifyToken, staffController.returnBookToGo);
 module.exports = router;
