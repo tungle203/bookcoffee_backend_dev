@@ -110,13 +110,13 @@ class StaffController {
     }
 
     borrowBookAtBranch(req, res) {
-        const { copyId, customerName, citizenId, phoneNumber, address } = req.body;
-        if(!copyId || !customerName) return res.sendStatus(400);
+        const { copyId, userName, idCard, phoneNumber, address } = req.body;
+        if(!copyId || !userName) return res.sendStatus(400);
         const sql = 'BEGIN; \
         INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, customerName, citizenId, phoneNumber, address, staffId) VALUES (?,?,?,?,?,?); \
         UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
         COMMIT;';
-        const values = [copyId, customerName, citizenId, phoneNumber, address, req.userId, copyId];
+        const values = [copyId, userName, idCard, phoneNumber, address, req.userId, copyId];
         db.query(sql, values, (err) => {
             if (err) return res.sendStatus(500);
             res.sendStatus(201);
