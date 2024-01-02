@@ -51,6 +51,7 @@ CREATE TABLE BOOK (
     availableCopies INT,
     salePrice INT,
     authorId INT,
+    image VARCHAR(255),
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (authorId) REFERENCES AUTHOR(authorId)
 );
@@ -85,9 +86,9 @@ CREATE TABLE BORROW_BOOK_TO_GO (
     userId INT,
     copyId INT,
     staffId INT,
-    quantity INT,
     deposit INT,
-    borrowingDate TIMESTAMP DEFAULT current_timestamp,
+    isReturn BOOL DEFAULT false,
+    borrowDate TIMESTAMP DEFAULT current_timestamp,
     returnDate TIMESTAMP,
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (userId) REFERENCES USER(userId),
@@ -113,13 +114,24 @@ CREATE TABLE BORROW_BOOK_AT_BRANCH (
     customerName VARCHAR(255),
     citizenId VARCHAR(12),
     phoneNumber VARCHAR(10),
-    quantity INT,
-    borrowingDate TIMESTAMP DEFAULT current_timestamp,
+    isReturn BOOL DEFAULT false,
+    borrowDate TIMESTAMP DEFAULT current_timestamp,
     returnDate TIMESTAMP,
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (staffId) REFERENCES USER(userId),
     FOREIGN KEY (copyId) REFERENCES BOOK_COPY(copyId)
 );
+
+DELIMITER //
+CREATE TRIGGER update_returnDate BEFORE INSERT ON BORROW_BOOK_AT_BRANCH
+FOR EACH ROW
+BEGIN
+    SET NEW.returnDate = TIMESTAMPADD(HOUR, 4, CURRENT_TIMESTAMP());
+   	UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = NEW.copyId;
+END;
+//
+DELIMITER ;
+
 
 CREATE TABLE MEETINGS (
 	meetingId INT AUTO_INCREMENT PRIMARY KEY,
@@ -187,23 +199,23 @@ INSERT INTO USER(userName, password, role, avatar) VALUES 	("tungle", "123456", 
                                                     ("tungle203", "123456", "admin", "sprite.jpg");
 INSERT INTO BRANCH(address, managerId) VALUE ("KTX B DHQG", 3), ("Land mark 81", 3);
 INSERT INTO WORK_ON(staffId, branchId) VALUES (2, 1), (3, 1);
-INSERT INTO BOOK(title, authorId, salePrice) VALUES ("The Double", 1, 50000), ("Junkie Hell", 2, 40000), ("Anna Karenina", 3, 30000);
+INSERT INTO BOOK(title, authorId, salePrice, image) VALUES ("The Double", 1, 50000, 'thedouble.jpg'), ("Junkie Hell", 2, 40000, 'junkiehell.jpg'), ("Anna Karenina", 3, 30000, 'annakarenina.jpg');
 INSERT INTO BOOK_COPY(bookId, branchId) VALUES (1, 1), (1,1), (2, 1), (2, 1), (3, 1), (1, 2), (1,2), (2, 2), (2, 2), (3, 2);;
 INSERT INTO reservations(userId, branchId, quantity, reservationDate)
 VALUES (1,1,5, CAST('2023-12-20 12:12:12' AS datetime)),
 		(1,2,2, CAST('2023-12-20 12:12:12' AS datetime)),
         (2,1,5, CAST('2023-12-20 12:12:12' AS datetime)),
         (2,2,5, CAST('2023-12-20 12:12:12' AS datetime));
-INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId, borrowingDate, returnDate)
-VALUES (1,1,2, CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-		(1,2,2, CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-        (2,3,2, CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-        (2,4,2, CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime));
-INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, staffId, customerName ,borrowingDate, returnDate)
-VALUES (1,2, 'Tung', CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-		(2,2, 'Hoang', CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-        (3,2, 'Chuong', CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime)),
-        (4,2, 'Tuan', CAST('2023-12-20 12:12:12' AS datetime), CAST('2023-12-20 12:12:12' AS datetime));
+INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId)
+VALUES (1,1,2),
+		(1,2,2),
+        (2,3,2),
+        (2,4,2);
+INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, staffId, customerName)
+VALUES (1,2, 'Tung'),
+		(2,2, 'Hoang'),
+        (3,2, 'Chuong'),
+        (4,2, 'Tuan');
 INSERT INTO MEETINGS(meetingName, meetingDate, description, hostId, branchId)
 VALUES ("Meeting 1", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 1", 3, 1),
 		("Meeting 2", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 2", 3, 1),
