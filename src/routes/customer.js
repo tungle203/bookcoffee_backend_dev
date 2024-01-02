@@ -6,6 +6,7 @@ const verifyToken = require('../middleware/auth');
 const customerController = require('../controllers/customerController');
 
 router.get('/getAvatar', verifyToken, customerController.getAvatar);
+router.get('/getBookImage/:bookId', customerController.getBookImage);
 router.get('/search', customerController.searchBook);
 router.get('/branchInfo', customerController.getBranchInfo);
 router.post('/reservation', verifyToken, customerController.createReservation);

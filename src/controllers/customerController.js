@@ -59,6 +59,20 @@ class CustomerController {
         });
     }
 
+    getBookImage(req, res) {
+        const sql = 'SELECT image FROM BOOK WHERE bookId = ?';
+        db.query(sql, [req.params.bookId], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            if (!results[0].image) {
+                return res.sendStatus(404);
+            }
+            res.sendFile(path.join(__dirname, `../../${process.env.BOOK_PATH}/${results[0].image}`));
+        }
+        );
+    }
+
     searchBook(req, res) {
         let sql =
             'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed\
