@@ -165,7 +165,7 @@ class StaffController {
 
         const sql1 = 'SELECT userId FROM USER WHERE userName = ?';
         db.query(sql1, [userName], (err, results) => {
-            if (!results[0].userId) return res.sendStatus(400);
+            if (!results[0]) return res.sendStatus(400);
 
             const sql2 =
                 'BEGIN;\
@@ -193,7 +193,12 @@ class StaffController {
         if(req.role === 'staff') {
             sql += ' WHERE bbtg.staffId = ?';
         }
-        db.query(sql, [req.userId], (err, results) => {
+
+        if(req.query.userName) {
+            sql += ' AND u.userName = ?';
+        }
+        
+        db.query(sql, [req.userId, req.query.userName], (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
