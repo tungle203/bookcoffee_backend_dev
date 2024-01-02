@@ -54,9 +54,11 @@ app.post('/login', (req, res) => {
 
     const values = [userName, password];
     const sql =
-        'SELECT u.userId, u.role, u.disable, w.branchId FROM user AS u \
+        'SELECT u.userId, u.role, u.disable, w.branchId, b.address FROM user AS u \
         LEFT JOIN WORK_ON as w \
-        on u.userId = w.staffId \
+        ON u.userId = w.staffId \
+        LEFT JOIN BRANCH as b \
+        ON w.branchId = b.branchId \
         WHERE u.userName = ? AND u.password = ?';
     db.query(sql, values, (err, results) => {
         if (err || results.length === 0) return res.sendStatus(401);
@@ -68,7 +70,7 @@ app.post('/login', (req, res) => {
         };
         const tokens = generateTokens(user);
         updateRefreshToken(user.userId, tokens.refreshToken);
-        res.json({ ...tokens, userName, role: user.role, branchId: user.branchId });
+        res.json({ ...tokens, userName, role: user.role, branchId: user.branchId, branchAddress: results[0].address });
     });
 });
 
