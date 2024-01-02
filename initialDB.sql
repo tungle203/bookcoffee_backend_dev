@@ -114,6 +114,7 @@ CREATE TABLE BORROW_BOOK_AT_BRANCH (
     customerName VARCHAR(255),
     citizenId VARCHAR(12),
     phoneNumber VARCHAR(10),
+    address VARCHAR(255),
     isReturn BOOL DEFAULT false,
     borrowDate TIMESTAMP DEFAULT current_timestamp,
     returnDate TIMESTAMP,
