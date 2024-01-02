@@ -82,7 +82,7 @@ class CustomerController {
         }
 
         if (req.query.title && !req.query.address) {
-            sql += 'WHERE b.title LIKE ? OR a.authorName LIKE ?';
+            sql += 'WHERE (b.title LIKE ? OR a.authorName LIKE ?)';
             values = [`%${req.query.title}%`, `%${req.query.title}%`];
         }
 
@@ -91,6 +91,11 @@ class CustomerController {
             values = [req.query.address];
         }
         
+        if(req.branchId) {
+            sql += ' AND br.branchId = ?';
+            values.push(req.branchId);
+        }
+
         db.query(sql, values, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
