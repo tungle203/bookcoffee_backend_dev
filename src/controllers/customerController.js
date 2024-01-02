@@ -11,6 +11,7 @@ const convertBookFormat = (books) => {
                 copyId: [],
                 branch: [],
                 isBorrowed: [],
+                bookId: book.bookId,
                 title: book.title,
                 authorName: book.authorName,
                 genre: book.genre,
@@ -75,7 +76,7 @@ class CustomerController {
 
     searchBook(req, res) {
         let sql =
-            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed\
+            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed, bc.bookId\
                         FROM BOOK AS b\
                         JOIN book_copy AS bc\
                         ON  b.bookId = bc.bookId\
