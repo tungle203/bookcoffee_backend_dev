@@ -2,7 +2,7 @@ const path = require('path');
 const db = require('../config/db');
 const multer = require('multer');
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, process.env.AVATAR_PATH)
     },
@@ -58,6 +58,48 @@ class CustomerController {
                 res.send({ message: 'Upload avatar successfully' });
             });
         })
+    }
+
+    updateProfile(req, res) {
+        const { password, email, address } = req.body
+        if(!password && !email && !address) res.sendStatus(400)
+
+        let sql = 'UPDATE user SET ';
+        let values = [];
+
+        if(password) {
+            sql += 'password = ?,';
+            values.push(password);
+        }
+
+        if(email) {
+            sql += 'email = ?,';
+            values.push(email);
+        }
+
+        if(address) {
+            sql += 'address = ?,';
+            values.push(address);
+        }
+
+        sql = sql.slice(0, -1);
+        sql += 'WHERE userId = ?';
+        values.push(req.userId)
+        db.query(sql, values, err => {
+            if(err) res.sendStatus(500);
+            res.sendStatus(200);
+        })
+        
+    }
+
+    getProfile(req, res) {
+        const sql = 'SELECT userName, email, address FROM user WHERE userId = ?';
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.json(results[0]);
+        });
     }
 
     getAvatar(req, res) {
