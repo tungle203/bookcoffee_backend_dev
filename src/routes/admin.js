@@ -9,7 +9,7 @@ const adminController = require('../controllers/adminController');
 router.get('/showAuthor', verifyToken, adminController.showAuthor);
 router.post('/addAuthor', verifyToken, adminController.addAuthor);
 
-router.get('/showBranch', verifyToken, adminController.showBranch);
+router.get('/showBranch', adminController.showBranch);
 router.post('/addBranch', verifyToken, adminController.addBranch);
 
 router.post('/addBook', verifyToken, adminController.addBook);
