@@ -152,6 +152,11 @@ class CustomerController {
             if (err) {
                 return res.sendStatus(500);
             }
+
+            if (!results[0]) {
+                return res.sendStatus(404);
+            }
+
             if (!results[0].image) {
                 return res.sendStatus(404);
             }

@@ -9,7 +9,7 @@ router.get('/getAvatar', verifyToken, customerController.getAvatar);
 router.post('/uploadAvatar', verifyToken, customerController.uploadAvatar);
 router.get('/getProfile', verifyToken, customerController.getProfile);
 router.post('/updateProfile', verifyToken, customerController.updateProfile);
-router.post('changePassword', verifyToken, customerController.changePassword);
+router.post('/changePassword', verifyToken, customerController.changePassword);
 router.get('/getBookImage/:bookId', customerController.getBookImage);
 router.get('/getBranchImage/:branchId', customerController.getBranchImage);
 router.get('/search', customerController.searchBook);
