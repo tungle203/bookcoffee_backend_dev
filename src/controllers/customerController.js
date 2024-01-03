@@ -61,16 +61,11 @@ class CustomerController {
     }
 
     updateProfile(req, res) {
-        const { password, email, address, phoneNumber } = req.body
-        if(!password && !email && !address) res.sendStatus(400)
+        const { email, address, phoneNumber } = req.body
+        if(!phoneNumber && !email && !address) res.sendStatus(400)
 
         let sql = 'UPDATE user SET ';
         let values = [];
-
-        if(password) {
-            sql += 'password = ?,';
-            values.push(password);
-        }
 
         if(email) {
             sql += 'email = ?,';
@@ -95,6 +90,23 @@ class CustomerController {
             res.sendStatus(200);
         })
         
+    }
+
+    changePassword(req, res) {
+        const { oldPassword, newPassword } = req.body;
+        if(!oldPassword || !newPassword) return res.sendStatus(400);
+
+        const sql = 'SELECT password FROM user WHERE userId = ?';
+        db.query(sql, [req.userId], (err, results) => {
+            if(err) return res.sendStatus(500);
+            if(results[0].password !== oldPassword) return res.sendStatus(400);
+
+            const sql1 = 'UPDATE user SET password = ? WHERE userId = ?';
+            db.query(sql1, [newPassword, req.userId], err => {
+                if(err) return res.sendStatus(500);
+                res.sendStatus(200);
+            })
+        })
     }
 
     getProfile(req, res) {
