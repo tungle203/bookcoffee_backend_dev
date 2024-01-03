@@ -61,7 +61,7 @@ class CustomerController {
     }
 
     updateProfile(req, res) {
-        const { password, email, address } = req.body
+        const { password, email, address, phoneNumber } = req.body
         if(!password && !email && !address) res.sendStatus(400)
 
         let sql = 'UPDATE user SET ';
@@ -82,6 +82,11 @@ class CustomerController {
             values.push(address);
         }
 
+        if(phoneNumber) {
+            sql += 'phoneNumber = ?,';
+            values.push(phoneNumber);
+        }
+
         sql = sql.slice(0, -1);
         sql += 'WHERE userId = ?';
         values.push(req.userId)
@@ -93,7 +98,7 @@ class CustomerController {
     }
 
     getProfile(req, res) {
-        const sql = 'SELECT userName, email, address FROM user WHERE userId = ?';
+        const sql = 'SELECT userName, email, address, phoneNumber FROM user WHERE userId = ?';
         db.query(sql, [req.userId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);

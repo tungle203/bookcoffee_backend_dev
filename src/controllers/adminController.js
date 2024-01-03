@@ -68,7 +68,7 @@ class AdminController {
 
     showBranch(req,res) {
         const sql =
-        'select b.branchId, b.address, b.workingTime, b.managerId, u.userName as managerName from branch as b\
+        'select b.branchId, b.address, b.workingTime, b.managerId, u.userName as managerName, u.phoneNumber from branch as b\
         JOIN user as u ON b.managerId = u.userId';
 
         db.query(sql, (err,results) => {
