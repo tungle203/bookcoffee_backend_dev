@@ -194,36 +194,101 @@ END;
 //
 DELIMITER ;
 
+INSERT INTO AUTHOR(authorName) VALUES  ("A &amp; E Television Network"),
+										("A A Milne"),
+										("A Adams"),
+										("A Alvarez"),
+										("A B Guthrie"),
+										("A B Simpson"),
+										("A Blue Mountain Arts Collection"),
+										("A Bodenburg Sommer"),
+										("A Dumas"),
+										("A E Hartink"),
+										("A E Van Vogt"),
+										("A Finlayson"),
+										("A First Book"),
+										("A Frank"),
+										("A Franquin");
+									
+INSERT INTO BOOK(title, authorId, salePrice, image, publicationYear)
+VALUES ("Amelia Earhart: Queen of the Air (Biography Audiobooks)", 1, 50000, '0312956762.01.LZZZZZZZ.jpg', "1998"),
+		("John F. Kennedy: A Personal Story (Biography Audiobooks)", 1, 40000, '034545006X.01.LZZZZZZZ.jpg', "1998"),
+		("Piglet Meets a Heffalump", 2, 30000, '1579651372.01.LZZZZZZZ.jpg', "1998"),
+		("Christopher Robin Gives Pooh a Party", 2, 30000, '1853114103.01.LZZZZZZZ.jpg', "1998"),
+		("Kanga and Baby Roo Come to the Forest", 2, 30000, '0736401369.01.LZZZZZZZ.jpg', "1998"),
+		("Pooh Goes Visiting and Pooh and Piglet Nearl", 2, 30000, '3426618354.01.LZZZZZZZ.jpg', "2000"),
+		("Winnie the Pooh Storybook Treasury", 2, 30000, '2710308932.01.LZZZZZZZ.jpg', "2000"),
+		("Annie's Wild Ride", 3, 30000, '3548201814.01.LZZZZZZZ.jpg', "2000"),
+		("Hers", 4, 30000, '2020126575.01.LZZZZZZZ.jpg', "2000"),
+		("These Thousand Hills", 5, 30000, '2211017312.01.LZZZZZZZ.jpg', "2000"),
+		("Big Sky", 5, 30000, '3502517630.01.LZZZZZZZ.jpg', "2002"),
+		("Best of A B Simpson", 6, 30000, '3499111802.01.LZZZZZZZ.jpg', "2002"),
+		("For a Special Teenager: A Collection of Poems (Teens &amp; Young Adults)", 7, 30000, '2710308932.01.LZZZZZZZ.jpg', "2002"),
+		("If You Want to Scare Yourself", 8, 30000, 'annakarenina.jpg', "2002"),
+		("Count of Monte Cristo", 9, 30000, '2211017312.01.LZZZZZZZ.jpg', "2002"),
+		("Encyclopedia of Pistols and Revolvers", 10, 30000, '0595292364.01.LZZZZZZZ.jpg', "2002"),
+		("Encyclopedia of Rifles and Carbines", 10, 30000, '0312956762.01.LZZZZZZZ.jpg', "2003"),
+		("Best of a E Van Vogt Volume 2", 11, 30000, '1579651372.01.LZZZZZZZ.jpg', "1995"),
+		("Supermind", 11, 30000, 'junkiehell.jpg', "2003"),
+		("Card Tricks", 12, 30000, 'annakarenina.jpg', "2003"),
+		("OPEN AND SAY", 13, 30000, '3548201814.01.LZZZZZZZ.jpg', "2003"),
+		("Journal", 14, 30000, 'thedouble.jpg', "2003"),
+		("Le Cas Lagaffe (Gaston Lagaffe)", 15, 30000, 'thedouble.jpg',"2003");
+	
+INSERT INTO USER(userName, password, email, address, phoneNumber, role, avatar) 
+VALUES 	("tung_cus", "123456", "tungcus@gmail.com", "Tây Ninh", "0966288048","customer", "tung.jpg"),
+		("tung_staff", "123456", "tungstaff@gmail.com", "Tây Ninh", "0966288048","staff", "tung.jpg"),
+		("tung_manager", "123456", "tungmana@gmail.com", "Tây Ninh", "0966288048","manager", "tung.jpg"),
+		("tung_admin", "123456", "tungadmin@gmail.com", "Tây Ninh", "0966288048","admin", "tung.jpg"),
+		("hoang_cus", "123456", "hoangcus@gmail.com", "Tây Ninh", "0966288048","customer", "hoang.jpg"),
+		("hoang_staff", "123456", "hoangstaff@gmail.com", "Tây Ninh", "0966288048","staff", "hoang.jpg"),
+		("hoang_manager", "123456", "hoangmana@gmail.com", "Tây Ninh", "0966288048","manager", "hoang.jpg"),
+		("hoang_admin", "123456", "hoangadmin@gmail.com", "Tây Ninh", "0966288048","admin", "hoang.jpg"),
+		("tuan_cus", "123456", "tuancus@gmail.com", "Tây Ninh", "0966288048","customer", "tuan.jpg"),
+		("tuan_staff", "123456", "tuanstaff@gmail.com", "Tây Ninh", "0966288048","staff", "tuan.jpg"),
+		("tuan_manager", "123456", "tuanmana@gmail.com", "Tây Ninh", "0966288048","manager", "tuan.jpg"),
+		("tuan_admin", "123456", "tuanadmin@gmail.com", "Tây Ninh", "0966288048","admin", "tuan.jpg"),
+		("anh_cus", "123456", "anhcus@gmail.com", "Tây Ninh", "0966288048","customer", "anh.jpg"),
+		("anh_staff", "123456", "anhstaff@gmail.com", "Tây Ninh", "0966288048","staff", "anh.jpg"),
+		("anh_manager", "123456", "anhmana@gmail.com", "Tây Ninh", "0966288048","manager", "anh.jpg"),
+		("anh_admin", "123456", "anhadmin@gmail.com", "Tây Ninh", "0966288048","admin", "anh.jpg"),
+		("chuong_cus", "123456", "chuongcus@gmail.com", "Tây Ninh", "0966288048","customer", "chuong.jpg"),
+		("chuong_staff", "123456", "chuongstaff@gmail.com", "Tây Ninh", "0966288048","staff", "chuong.jpg"),
+		("chuong_manager", "123456", "chuongmana@gmail.com", "Tây Ninh", "0966288048","manager", "chuong.jpg"),
+		("chuong_admin", "123456", "chuongadmin@gmail.com", "Tây Ninh", "0966288048","admin", "chuong.jpg"),
+		("tung_cus1", "123456", "tungcus@gmail.com", "Tây Ninh", "0966288048","customer", "tung.jpg"),
+		("tung_staff1", "123456", "tungstaff@gmail.com", "Tây Ninh", "0966288048","staff", "tung.jpg"),
+		("tung_cus2", "123456", "tungcus@gmail.com", "Tây Ninh", "0966288048","customer", "tung.jpg"),
+		("tung_staff2", "123456", "tungstaff@gmail.com", "Tây Ninh", "0966288048","staff", "tung.jpg"),
+		("tung_cus3", "123456", "tungcus@gmail.com", "Tây Ninh", "0966288048","customer", "tung.jpg"),
+		("tung_staff3", "123456", "tungstaff@gmail.com", "Tây Ninh", "0966288048","staff", "tung.jpg"),
+		("hoang_cus1", "123456", "hoangcus@gmail.com", "Tây Ninh", "0966288048","customer", "hoang.jpg"),
+		("hoang_staff1", "123456", "hoangstaff@gmail.com", "Tây Ninh", "0966288048","staff", "hoang.jpg"),
+		("hoang_cus2", "123456", "hoangcus@gmail.com", "Tây Ninh", "0966288048","customer", "hoang.jpg"),
+		("hoang_staff2", "123456", "hoangstaff@gmail.com", "Tây Ninh", "0966288048","staff", "hoang.jpg"),
+		("hoang_cus3", "123456", "hoangcus@gmail.com", "Tây Ninh", "0966288048","customer", "hoang.jpg"),
+		("hoang_staff3", "123456", "hoangstaff@gmail.com", "Tây Ninh", "0966288048","staff", "hoang.jpg");
+	
+INSERT INTO BRANCH(address, managerId, workingTime, image) 
+VALUES ("KTX B ĐHQG", 3, "8AM - 10PM", 'ktxb.jpg'),
+		("KTX A DHQG", 7, "8AM - 10PM", 'ktxa.jpg'),
+		("Thủ Thiêm", 11, "8AM - 10PM", 'hamthuthiem.jpg'),
+		("HCMUTE", 15, "8AM - 10PM", 'ute.jpg'),
+		("Land mark 81", 19, "8AM - 10PM", 'landmark81.jpg');
 
-INSERT INTO AUTHOR(authorName) VALUES ("Fyodor Dostoevsky"), ("Dante Alighier"), ("Lev Tolstoy");
-INSERT INTO USER(userName, password, role, avatar) VALUES 	("tungle", "123456", "customer", "coca.jpg"),
-													("tungle2", "123456", "staff", "pepsi.jpg"),
-                                                    ("tungle23", "123456", "manager", "7up.jpg"),
-                                                    ("tungle203", "123456", "admin", "sprite.jpg");
-INSERT INTO BRANCH(address, managerId) VALUE ("KTX B DHQG", 3), ("Land mark 81", 3);
-INSERT INTO WORK_ON(staffId, branchId) VALUES (2, 1), (3, 1);
-INSERT INTO BOOK(title, authorId, salePrice, image) VALUES ("The Double", 1, 50000, 'thedouble.jpg'), ("Junkie Hell", 2, 40000, 'junkiehell.jpg'), ("Anna Karenina", 3, 30000, 'annakarenina.jpg');
-INSERT INTO BOOK_COPY(bookId, branchId) VALUES (1, 1), (1,1), (2, 1), (2, 1), (3, 1), (1, 2), (1,2), (2, 2), (2, 2), (3, 2);
+INSERT INTO WORK_ON(staffId, branchId) VALUES (2, 1), (3, 1),(22,1), (24,1), (26,1), (14,1), (10,1), (6,2), (7,2), (18,2), (28,2), (30,2), (32,2);
+
 INSERT INTO reservations(userId, branchId, quantity, reservationDate)
 VALUES (1,1,5, CAST('2023-12-20 12:12:12' AS datetime)),
 		(1,2,2, CAST('2023-12-20 12:12:12' AS datetime)),
         (2,1,5, CAST('2023-12-20 12:12:12' AS datetime)),
         (2,2,5, CAST('2023-12-20 12:12:12' AS datetime));
-INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId)
-VALUES (1,1,2),
-		(1,2,2),
-        (2,3,2),
-        (2,4,2);
-INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, staffId, customerName)
-VALUES (1,2, 'Tung'),
-		(2,2, 'Hoang'),
-        (3,2, 'Chuong'),
-        (4,2, 'Tuan');
+
 INSERT INTO MEETINGS(meetingName, meetingDate, description, hostId, branchId)
-VALUES ("Meeting 1", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 1", 3, 1),
-		("Meeting 2", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 2", 3, 1),
-        ("Meeting 3", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 3", 3, 1),
-        ("Meeting 4", CAST('2023-12-20 12:12:12' AS datetime), "Meeting 4", 3, 1);
+VALUES ("Giới thiệu sách mới", CAST('2023-12-20 12:12:12' AS datetime), "Giới thiệu sách mới", 1, 1),
+		("Nuoi duong tam hon", CAST('2023-12-20 12:12:12' AS datetime), "Nuoi duong tam hon", 5, 1),
+        ("Vi ban xung dang", CAST('2023-12-20 12:12:12' AS datetime), "Vi ban xung dang", 9, 1),
+        ("Never give up!", CAST('2023-12-20 12:12:12' AS datetime), "Never give up!", 13, 1);
 INSERT INTO DRINKS(drinksName, image)
 VALUES ("Coca", "coca.jpg"),
 		("Pepsi", "pepsi.jpg"),
