@@ -9,7 +9,11 @@ class managerController {
             on u.userId = w.staffId \
             WHERE w.branchId = ? AND u.role = "staff"';
 
-        db.query(sql, [req.branchId], (err, results) => {
+        let values = [];
+        if(req.role === 'manager') values = [req.branchId];
+        if(req.role === 'admin') values = [req.query.branchId];
+
+        db.query(sql, values, (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
@@ -32,8 +36,16 @@ class managerController {
             if (err) {
                 return res.sendStatus(500);
             }
+            let values = [];
+            
+            if(req.role === 'manager')
+                values = [ results.insertId, req.branchId ];
+
+            if(req.role === 'admin') 
+                values = [ results.insertId, req.body.branchId ];
+
             const sql1 = 'INSERT INTO work_on(staffId, branchId) VALUES(?,?)'
-            db.query(sql1, [results.insertId, req.branchId], (err) => {
+            db.query(sql1, values, (err) => {
                 if (err) {
                     return res.sendStatus(500);
                 }
@@ -72,9 +84,13 @@ class managerController {
             'BEGIN; \
             INSERT INTO book_copy(branchId, bookId) VALUES';
             let values = [];
+            let branchId = -1;
+            if(req.role === 'manager') branchId = req.branchId;
+            if(req.role === 'admin') branchId = req.body.branchId;
+
             for (let i = 0; i < req.body.numCopies; i++) {
                 sql += '(?,?),';
-                values.push(req.branchId);
+                values.push(branchId);
                 values.push(bookId);
             }
             sql = sql.slice(0, -1);
