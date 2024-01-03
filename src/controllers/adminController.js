@@ -113,7 +113,7 @@ class AdminController {
             if (err) {
                 return res.sendStatus(500);
             }
-            const { title, genre, publicationYear, salePrice, authorName } = req.body;
+            const { title, genre, publicationYear, salePrice, authorName, description } = req.body;
             if(!title || !genre || !publicationYear || !salePrice || !authorName) return res.sendStatus(400);
             const sql = 'SELECT authorId from author where authorName = ?';
             db.query(sql, [authorName], (err, result) => {
@@ -124,8 +124,8 @@ class AdminController {
                 
                 if(result.length === 0) return res.sendStatus(400);
                 const sql1 =
-                    'INSERT INTO book(title, genre, publicationYear, salePrice, authorId, image)\
-                    VALUES (?,?,?,?,?,?)';
+                    'INSERT INTO book(title, genre, publicationYear, salePrice, authorId, image, description)\
+                    VALUES (?,?,?,?,?,?,?)';
                 const values = [
                     title,
                     genre,
@@ -133,6 +133,7 @@ class AdminController {
                     salePrice,
                     result[0].authorId,
                     bookImage,
+                    description,
                 ];
 
                 db.query(sql1, values, (err) => {
