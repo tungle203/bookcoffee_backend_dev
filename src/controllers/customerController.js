@@ -218,6 +218,21 @@ class CustomerController {
         });
     }
 
+    showReservation(req, res) {
+        const sql =
+            'SELECT b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
+        JOIN BRANCH AS b\
+        ON r.branchId = b.branchId\
+        WHERE r.userId = ?';
+
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.json(results);
+        });
+    }
+
     createMeeting(req, res) {
         if (
             !req.body.address ||
