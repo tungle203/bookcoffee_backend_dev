@@ -201,7 +201,7 @@ INSERT INTO USER(userName, password, role, avatar) VALUES 	("tungle", "123456", 
 INSERT INTO BRANCH(address, managerId) VALUE ("KTX B DHQG", 3), ("Land mark 81", 3);
 INSERT INTO WORK_ON(staffId, branchId) VALUES (2, 1), (3, 1);
 INSERT INTO BOOK(title, authorId, salePrice, image) VALUES ("The Double", 1, 50000, 'thedouble.jpg'), ("Junkie Hell", 2, 40000, 'junkiehell.jpg'), ("Anna Karenina", 3, 30000, 'annakarenina.jpg');
-INSERT INTO BOOK_COPY(bookId, branchId) VALUES (1, 1), (1,1), (2, 1), (2, 1), (3, 1), (1, 2), (1,2), (2, 2), (2, 2), (3, 2);;
+INSERT INTO BOOK_COPY(bookId, branchId) VALUES (1, 1), (1,1), (2, 1), (2, 1), (3, 1), (1, 2), (1,2), (2, 2), (2, 2), (3, 2);
 INSERT INTO reservations(userId, branchId, quantity, reservationDate)
 VALUES (1,1,5, CAST('2023-12-20 12:12:12' AS datetime)),
 		(1,2,2, CAST('2023-12-20 12:12:12' AS datetime)),
