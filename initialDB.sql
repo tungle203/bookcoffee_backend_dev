@@ -17,6 +17,7 @@ CREATE TABLE USER (
 	password VARCHAR(20),
     email VARCHAR(40),
     address VARCHAR(255),
+    phoneNumber VARCHAR(255),
     avatar VARCHAR(255),
     role enum('customer','staff', 'manager', 'admin') DEFAULT 'customer',
     disable BOOL DEFAULT false,
