@@ -167,11 +167,11 @@ class CustomerController {
 
     searchBook(req, res) {
         let sql =
-            'SELECT DISTINCT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed, bc.bookId\
+            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed, b.bookId\
                         FROM BOOK AS b\
-                        JOIN book_copy AS bc\
+                        LEFT JOIN book_copy AS bc\
                         ON  b.bookId = bc.bookId\
-                        JOIN branch AS br\
+                        LEFT JOIN branch AS br\
                         ON bc.branchId = br.branchId\
                         JOIN author AS a\
                         ON b.authorId = a.authorId ';
