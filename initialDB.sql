@@ -6,7 +6,7 @@ use DAHTTT;
 
 CREATE TABLE AUTHOR (
 	authorId INT AUTO_INCREMENT PRIMARY KEY,
-    authorName VARCHAR(255) NOT NULL,
+    authorName VARCHAR(255) NOT NULL UNIQUE,
     bornDate DATE,
     createdDate TIMESTAMP DEFAULT current_timestamp
 );
@@ -28,6 +28,7 @@ CREATE TABLE BRANCH (
 	branchId INT AUTO_INCREMENT PRIMARY KEY,
     address VARCHAR(255),
     workingTime VARCHAR(255),
+    image VARCHAR(255),
     managerId INT,
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (managerId) REFERENCES USER(userId)
@@ -45,10 +46,9 @@ CREATE TABLE WORK_ON (
 
 CREATE TABLE BOOK (
 	bookId INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) UNIQUE,
+    title VARCHAR(255),
     genre VARCHAR(255),
     publicationYear VARCHAR(4),
-    availableCopies INT,
     salePrice INT,
     authorId INT,
     image VARCHAR(255),

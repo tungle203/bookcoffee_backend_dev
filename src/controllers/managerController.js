@@ -65,7 +65,7 @@ class managerController {
                 if(err) return res.sendStatus(500);
                 if(!staff[0]) return res.sendStatus(400);
 
-                if(staff[0].branchId !== req.branchId) return res.sendStatus(400);
+                if(req.role === 'manager' && staff[0].branchId !== req.branchId) return res.sendStatus(400);
                     const sql2 = 'UPDATE USER SET disable = !disable WHERE userId = ?;';
                     db.query(sql2, [staffId], (err) => {
                         if (err) return res.sendStatus(500);

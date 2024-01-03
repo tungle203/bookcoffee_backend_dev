@@ -10,6 +10,7 @@ router.post('/uploadAvatar', verifyToken, customerController.uploadAvatar);
 router.get('/getProfile', verifyToken, customerController.getProfile);
 router.post('/updateProfile', verifyToken, customerController.updateProfile);
 router.get('/getBookImage/:bookId', customerController.getBookImage);
+router.get('/getBranchImage/:branchId', customerController.getBranchImage);
 router.get('/search', customerController.searchBook);
 router.get('/branchInfo', customerController.getBranchInfo);
 router.post('/reservation', verifyToken, customerController.createReservation);
