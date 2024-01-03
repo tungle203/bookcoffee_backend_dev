@@ -6,6 +6,7 @@ const verifyToken = require('../middleware/auth');
 const customerController = require('../controllers/customerController');
 
 router.get('/getAvatar', verifyToken, customerController.getAvatar);
+router.post('/uploadAvatar', verifyToken, customerController.uploadAvatar);
 router.get('/getBookImage/:bookId', customerController.getBookImage);
 router.get('/search', customerController.searchBook);
 router.get('/branchInfo', customerController.getBranchInfo);

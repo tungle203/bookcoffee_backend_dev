@@ -33,10 +33,10 @@ app.use(express.json());
 app.use(cors());
 const generateTokens = (payload) => {
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '5m',
+        expiresIn: '10h',
     });
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: '1h',
+        expiresIn: '24h',
     });
 
     return { accessToken, refreshToken };
@@ -126,7 +126,7 @@ app.post('/signup', upload.single('avatar'), (req, res) => {
     ];
 
     db.query(sql, values, (err) => {
-        if(err.code === 'ER_DUP_ENTRY') return res.status(409).send({message: 'username already exists'});
+        if(err && err.code === 'ER_DUP_ENTRY') return res.status(409).send({message: 'username already exists'});
         if (err) {
             return res.sendStatus(500);
         }

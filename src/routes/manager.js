@@ -7,6 +7,6 @@ const managerController = require('../controllers/managerController');
 
 router.get('/showStaff', verifyToken, managerController.showStaff);
 router.post('/addStaff', verifyToken, managerController.addStaff);
-router.delete('/updateStaff', verifyToken, managerController.updateStaff);
+router.put('/updateStaff', verifyToken, managerController.updateStaff);
 router.post('/addBookCopy', verifyToken, managerController.addBookCopies);
 module.exports = router;
