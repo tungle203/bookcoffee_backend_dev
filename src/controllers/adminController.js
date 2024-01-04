@@ -147,7 +147,7 @@ class AdminController {
             if (result.length === 0) return res.sendStatus(400);
 
             let sql1 = 'UPDATE book SET ';
-            const values = [];
+            let values = [];
             if (title) {
                 sql1 += 'title = ?,';
                 values.push(title);
