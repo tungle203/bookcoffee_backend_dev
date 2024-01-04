@@ -17,6 +17,7 @@ const convertBookFormat = (books) => {
                 genre: book.genre,
                 publicationYear: book.publicationYear,
                 salePrice: book.salePrice,
+                description: book.description,
             };
             result.push(titleMap[book.title]);
         }
