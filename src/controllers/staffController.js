@@ -67,10 +67,15 @@ class StaffController {
                     values.push(item.quantity);
                 });
                 sql2 = sql2.slice(0, -1);
-                sql2 += '; COMMIT;';
-                db.query(sql2, values, (err) => {
+                sql2 += '; \
+                SELECT price FROM BILL WHERE billId = ?;\
+                SELECT userName FROM USER WHERE userId = ?;\
+                COMMIT;';
+                values.push(results.insertId);
+                values.push(req.userId);
+                db.query(sql2, values, (err, results) => {
                     if (err) return res.sendStatus(500);
-                    res.sendStatus(201);
+                    res.status(201).send({ price: results[2][0].price, staffName: results[3][0].userName });
                 });
             });
         });
@@ -113,10 +118,10 @@ class StaffController {
         const { copyId, userName, idCard, phoneNumber, address } = req.body;
         if(!copyId || !userName) return res.sendStatus(400);
         const sql = 'BEGIN; \
-        INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, customerName, citizenId, phoneNumber, address, staffId) VALUES (?,?,?,?,?,?); \
+        INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, customerName, citizenId, phoneNumber, address, staffId, branchId) VALUES (?,?,?,?,?,?,?); \
         UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
         COMMIT;';
-        const values = [copyId, userName, idCard, phoneNumber, address, req.userId, copyId];
+        const values = [copyId, userName, idCard, phoneNumber, address, req.userId, req.branchId, copyId];
         db.query(sql, values, (err) => {
             if (err) return res.sendStatus(500);
             res.sendStatus(201);
@@ -131,9 +136,11 @@ class StaffController {
         ON bc.bookId = b.bookId';
 
         if(req.role === 'staff') {
-            sql += ' WHERE bbb.staffId = ?';
+            sql += ' WHERE bbb.branchId = ?';
         }
-        db.query(sql, [req.userId], (err, results) => {
+
+        sql += ' ORDER BY bbb.isReturn ASC';
+        db.query(sql, [req.branchId], (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
@@ -148,9 +155,9 @@ class StaffController {
             if (err) return res.sendStatus(500);
             const sql1 = 'BEGIN; \
             UPDATE BOOK_COPY SET isBorrowed = FALSE WHERE copyId = ?; \
-            UPDATE BORROW_BOOK_AT_BRANCH SET isReturn = TRUE WHERE borrowingId = ?; \
+            UPDATE BORROW_BOOK_AT_BRANCH SET isReturn = TRUE, confirmStaff = ? WHERE borrowingId = ?; \
             COMMIT;';
-            db.query(sql1, [results[0].copyId, borrowingId], (err) => {
+            db.query(sql1, [results[0].copyId, req.userId,borrowingId], (err) => {
                 if (err) return res.sendStatus(500);
 
                 res.sendStatus(200);
@@ -169,10 +176,10 @@ class StaffController {
 
             const sql2 =
                 'BEGIN;\
-                INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId) VALUE (?,?,?); \
+                INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId, branchId) VALUE (?,?,?,?); \
                 UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
                 COMMIT';
-            const values = [results[0].userId, copyId, req.userId, copyId];
+            const values = [results[0].userId, copyId, req.userId, req.branchId, copyId];
 
             db.query(sql2, values, (err) => {
                 if (err) return res.sendStatus(500);
@@ -191,14 +198,14 @@ class StaffController {
         ON bbtg.userId = u.userId';
 
         if(req.role === 'staff') {
-            sql += ' WHERE bbtg.staffId = ?';
+            sql += ' WHERE bbtg.branchId = ?';
         }
 
         if(req.query.userName) {
             sql += ' AND u.userName = ?';
         }
-        
-        db.query(sql, [req.userId, req.query.userName], (err, results) => {
+        sql += ' ORDER BY bbtg.isReturn ASC';
+        db.query(sql, [req.branchId, req.query.userName], (err, results) => {
             if (err) return res.sendStatus(500);
             res.json(results);
         });
@@ -213,9 +220,9 @@ class StaffController {
             if (err) return res.sendStatus(500);
             const sql1 = 'BEGIN; \
             UPDATE BOOK_COPY SET isBorrowed = FALSE WHERE copyId = ?; \
-            UPDATE BORROW_BOOK_TO_GO SET isReturn = TRUE, returnDate = current_timestamp WHERE borrowingId = ?; \
+            UPDATE BORROW_BOOK_TO_GO SET isReturn = TRUE, returnDate = current_timestamp, confirmStaff = ? WHERE borrowingId = ?; \
             COMMIT;';
-            db.query(sql1, [results[0].copyId, borrowingId], (err) => {
+            db.query(sql1, [results[0].copyId, req.userId,borrowingId], (err) => {
                 if (err) return res.sendStatus(500);
 
                 res.sendStatus(200);
