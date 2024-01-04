@@ -20,16 +20,15 @@ const convertBookFormat = (books) => {
             };
             result.push(titleMap[book.title]);
         }
-            titleMap[book.title].copyId.push(book.copyId);
-            titleMap[book.title].branch.push(book.address);
-            titleMap[book.title].isBorrowed.push(book.isBorrowed);
-        });
+        titleMap[book.title].copyId.push(book.copyId);
+        titleMap[book.title].branch.push(book.address);
+        titleMap[book.title].isBorrowed.push(book.isBorrowed);
+    });
 
     return result;
 };
 
 class CustomerController {
-
     uploadAvatar(req, res) {
         const sql = 'UPDATE user SET avatar = ? WHERE userId = ?';
         const values = [req.file.originalname, req.userId];
@@ -42,56 +41,56 @@ class CustomerController {
     }
 
     updateProfile(req, res) {
-        const { email, address, phoneNumber } = req.body
-        if(!phoneNumber && !email && !address) res.sendStatus(400)
+        const { email, address, phoneNumber } = req.body;
+        if (!phoneNumber && !email && !address) res.sendStatus(400);
 
         let sql = 'UPDATE user SET ';
         let values = [];
 
-        if(email) {
+        if (email) {
             sql += 'email = ?,';
             values.push(email);
         }
 
-        if(address) {
+        if (address) {
             sql += 'address = ?,';
             values.push(address);
         }
 
-        if(phoneNumber) {
+        if (phoneNumber) {
             sql += 'phoneNumber = ?,';
             values.push(phoneNumber);
         }
 
         sql = sql.slice(0, -1);
         sql += 'WHERE userId = ?';
-        values.push(req.userId)
-        db.query(sql, values, err => {
-            if(err) res.sendStatus(500);
+        values.push(req.userId);
+        db.query(sql, values, (err) => {
+            if (err) res.sendStatus(500);
             res.sendStatus(200);
-        })
-        
+        });
     }
 
     changePassword(req, res) {
         const { oldPassword, newPassword } = req.body;
-        if(!oldPassword || !newPassword) return res.sendStatus(400);
+        if (!oldPassword || !newPassword) return res.sendStatus(400);
 
         const sql = 'SELECT password FROM user WHERE userId = ?';
         db.query(sql, [req.userId], (err, results) => {
-            if(err) return res.sendStatus(500);
-            if(results[0].password !== oldPassword) return res.sendStatus(400);
+            if (err) return res.sendStatus(500);
+            if (results[0].password !== oldPassword) return res.sendStatus(400);
 
             const sql1 = 'UPDATE user SET password = ? WHERE userId = ?';
-            db.query(sql1, [newPassword, req.userId], err => {
-                if(err) return res.sendStatus(500);
+            db.query(sql1, [newPassword, req.userId], (err) => {
+                if (err) return res.sendStatus(500);
                 res.sendStatus(200);
-            })
-        })
+            });
+        });
     }
 
     getProfile(req, res) {
-        const sql = 'SELECT userName, email, address, phoneNumber FROM user WHERE userId = ?';
+        const sql =
+            'SELECT userName, email, address, phoneNumber FROM user WHERE userId = ?';
         db.query(sql, [req.userId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
@@ -109,7 +108,12 @@ class CustomerController {
             if (!results[0].avatar) {
                 return res.sendStatus(404);
             }
-            res.sendFile(path.join(__dirname, `../../${process.env.AVATAR_PATH}/${results[0].avatar}`));
+            res.sendFile(
+                path.join(
+                    __dirname,
+                    `../../${process.env.AVATAR_PATH}/${results[0].avatar}`,
+                ),
+            );
         });
     }
 
@@ -125,9 +129,13 @@ class CustomerController {
             if (!results[0].image) {
                 return res.sendStatus(404);
             }
-            res.sendFile(path.join(__dirname, `../../${process.env.BOOK_PATH}/${results[0].image}`));
-        }
-        );
+            res.sendFile(
+                path.join(
+                    __dirname,
+                    `../../${process.env.BOOK_PATH}/${results[0].image}`,
+                ),
+            );
+        });
     }
 
     getBranchImage(req, res) {
@@ -144,9 +152,13 @@ class CustomerController {
             if (!results[0].image) {
                 return res.sendStatus(404);
             }
-            res.sendFile(path.join(__dirname, `../../${process.env.BRANCH_PATH}/${results[0].image}`));
-        }
-        );
+            res.sendFile(
+                path.join(
+                    __dirname,
+                    `../../${process.env.BRANCH_PATH}/${results[0].image}`,
+                ),
+            );
+        });
     }
 
     searchBook(req, res) {
@@ -180,8 +192,8 @@ class CustomerController {
             sql += 'WHERE br.address = ?';
             values = [req.query.address];
         }
-        
-        if(req.branchId) {
+
+        if (req.branchId) {
             sql += ' AND br.branchId = ?';
             values.push(req.branchId);
         }

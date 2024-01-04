@@ -7,7 +7,12 @@ const uploadImage = require('../helper/uploadImageHelper');
 const customerController = require('../controllers/customerController');
 
 router.get('/getAvatar', verifyToken, customerController.getAvatar);
-router.post('/uploadAvatar', verifyToken, uploadImage('avatar', process.env.AVATAR_PATH), customerController.uploadAvatar);
+router.post(
+    '/uploadAvatar',
+    verifyToken,
+    uploadImage('avatar', process.env.AVATAR_PATH),
+    customerController.uploadAvatar,
+);
 router.get('/getProfile', verifyToken, customerController.getProfile);
 router.post('/updateProfile', verifyToken, customerController.updateProfile);
 router.post('/changePassword', verifyToken, customerController.changePassword);

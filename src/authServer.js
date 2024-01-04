@@ -10,14 +10,13 @@ require('dotenv').config();
 const db = require('./config/db');
 const verifyToken = require('./middleware/auth');
 
-
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, process.env.AVATAR_PATH)
+        cb(null, process.env.AVATAR_PATH);
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname)
-    }
+        cb(null, file.originalname);
+    },
 });
 
 const upload = multer({ storage: storage });
@@ -62,7 +61,8 @@ app.post('/login', (req, res) => {
         WHERE u.userName = ? AND u.password = ?';
     db.query(sql, values, (err, results) => {
         if (err || results.length === 0) return res.sendStatus(401);
-        if(results[0].disable) return res.status(403).send({message: 'account is disabled'});
+        if (results[0].disable)
+            return res.status(403).send({ message: 'account is disabled' });
         const user = {
             userId: results[0].userId,
             role: results[0].role,
@@ -70,7 +70,13 @@ app.post('/login', (req, res) => {
         };
         const tokens = generateTokens(user);
         updateRefreshToken(user.userId, tokens.refreshToken);
-        res.json({ ...tokens, userName, role: user.role, branchId: user.branchId, branchAddress: results[0].address });
+        res.json({
+            ...tokens,
+            userName,
+            role: user.role,
+            branchId: user.branchId,
+            branchAddress: results[0].address,
+        });
     });
 });
 
@@ -84,9 +90,12 @@ app.post('/token', (req, res) => {
         if (err) return res.sendStatus(500);
         if (results.length === 0)
             return res.status(403).send({ message: 'invalid refreshToken' });
-        
+
         try {
-            const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            const decode = jwt.verify(
+                refreshToken,
+                process.env.REFRESH_TOKEN_SECRET,
+            );
             const user = {
                 userId: decode.userId,
                 role: decode.role,
@@ -112,7 +121,6 @@ app.post('/logout', verifyToken, (req, res) => {
 });
 
 app.post('/signup', upload.single('avatar'), (req, res) => {
-    
     const avatar = req.file ? req.file.filename : null;
     const sql =
         'INSERT INTO user(userName, password, email, address, avatar)\
@@ -126,7 +134,8 @@ app.post('/signup', upload.single('avatar'), (req, res) => {
     ];
 
     db.query(sql, values, (err) => {
-        if(err && err.code === 'ER_DUP_ENTRY') return res.status(409).send({message: 'username already exists'});
+        if (err && err.code === 'ER_DUP_ENTRY')
+            return res.status(409).send({ message: 'username already exists' });
         if (err) {
             return res.sendStatus(500);
         }
