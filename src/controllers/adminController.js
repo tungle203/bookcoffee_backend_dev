@@ -105,9 +105,10 @@ class AdminController {
 
     addDrinks(req,res) {
             const drinksImage = req.file ? req.file.filename : null;
-            const { drinksName, price, size } = req.body;
+            let { drinksName, price, size } = req.body;
             if(!drinksName || !price || !size) return res.sendStatus(400);
-
+            price = price.split(',');
+            size = size.split(',');
             let sql =
             'BEGIN; \
             INSERT INTO DRINKS(drinksName, image) VALUES (?,?);\
@@ -117,10 +118,12 @@ class AdminController {
             let values = [drinksName, drinksImage];
             for(let i = 0; i < size.length; i++) {
                 sql += '(@drinksId, ?, ?),';
-                values.push(size[i], price[i]);
+                values.push(size[i]);
+                values.push(price[i]);
             }
             sql = sql.slice(0, -1);
             sql += '; COMMIT;';
+
             db.query(sql, values, (err) => {
                 if (err) {
                     return res.sendStatus(500);

@@ -151,7 +151,7 @@ class CustomerController {
 
     searchBook(req, res) {
         let sql =
-            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, br.address, bc.isBorrowed, b.bookId\
+            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, b.description, br.address, bc.isBorrowed, b.bookId\
                         FROM BOOK AS b\
                         LEFT JOIN book_copy AS bc\
                         ON  b.bookId = bc.bookId\
