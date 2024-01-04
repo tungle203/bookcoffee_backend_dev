@@ -53,7 +53,7 @@ CREATE TABLE BOOK (
     salePrice INT,
     authorId INT,
     image VARCHAR(255),
-    description VARCHAR(255),
+    description TEXT,
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (authorId) REFERENCES AUTHOR(authorId)
 );
@@ -387,4 +387,3 @@ VALUES (22, "M", 42000),
         (24, "L", 60000),
 		(25, "M", 45000),
         (25, "L", 52000);
-
