@@ -103,6 +103,63 @@ class AdminController {
             });
     };
 
+    updateBook(req,res) {
+        const bookImage = req.file ? req.file.filename : null;
+        if(!req.body.bookId) return res.sendStatus(400);
+        const { title, genre, publicationYear, salePrice, authorName, description } = req.body;
+        if(!title && !genre && !publicationYear && !salePrice && !authorName && !bookImage) return res.sendStatus(400);
+
+        const sql = 'SELECT authorId from author where authorName = ?';
+        db.query(sql, [authorName], (err, result) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            
+            if(result.length === 0) return res.sendStatus(400);
+            
+            let sql1 = 'UPDATE book SET ';
+            const values = [];
+            if(title) {
+                sql1 += 'title = ?,';
+                values.push(title);
+            }
+            if(genre) {
+                sql1 += 'genre = ?,';
+                values.push(genre);
+            }
+            if(publicationYear) {
+                sql1 += 'publicationYear = ?,';
+                values.push(publicationYear);
+            }
+            if(salePrice) {
+                sql1 += 'salePrice = ?,';
+                values.push(salePrice);
+            }
+            if(authorName) {
+                sql1 += 'authorId = ?,';
+                values.push(result[0].authorId);
+            }
+            if(bookImage) {
+                sql1 += 'image = ?,';
+                values.push(bookImage);
+            }
+            if(description) {
+                sql1 += 'description = ?,';
+                values.push(description);
+            }
+            sql1 = sql1.slice(0, -1);
+            sql1 += ' WHERE bookId = ?';
+            values.push(req.body.bookId);
+
+            db.query(sql1, values, (err) => {
+                if (err) {
+                    return res.sendStatus(500);
+                }
+                res.sendStatus(200);
+                });
+            });
+    }
+
     addDrinks(req,res) {
             const drinksImage = req.file ? req.file.filename : null;
             let { drinksName, price, size } = req.body;

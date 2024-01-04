@@ -14,6 +14,7 @@ router.get('/showBranch', adminController.showBranch);
 router.post('/addBranch', verifyToken, verifyPermission(['admin']), uploadImage('branchImage', process.env.BRANCH_PATH), adminController.addBranch);
 
 router.post('/addBook', verifyToken, verifyPermission(['admin']), uploadImage('bookImage', process.env.BOOK_PATH),adminController.addBook);
+router.post('/updateBook', verifyToken, verifyPermission(['admin']), uploadImage('bookImage', process.env.BOOK_PATH),adminController.updateBook);
 
 router.get('/showStaffandManager', verifyToken, verifyPermission(['admin']), adminController.showStaffandManager);
 
