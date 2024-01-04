@@ -18,7 +18,7 @@ CREATE TABLE USER (
     email VARCHAR(40),
     address VARCHAR(255),
     phoneNumber VARCHAR(255),
-    avatar VARCHAR(255),
+    avatar VARCHAR(255) DEFAULT 'default-avatar.jpg',
     role enum('customer','staff', 'manager', 'admin') DEFAULT 'customer',
     disable BOOL DEFAULT false,
     refreshToken VARCHAR(255),
@@ -88,6 +88,8 @@ CREATE TABLE BORROW_BOOK_TO_GO (
     userId INT,
     copyId INT,
     staffId INT,
+    branchId INT,
+    confirmStaff INT,
     deposit INT,
     isReturn BOOL DEFAULT false,
     borrowDate TIMESTAMP DEFAULT current_timestamp,
@@ -95,6 +97,8 @@ CREATE TABLE BORROW_BOOK_TO_GO (
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (userId) REFERENCES USER(userId),
     FOREIGN KEY (staffId) REFERENCES USER(userId),
+    FOREIGN KEY (confirmStaff) REFERENCES USER(userId),
+    FOREIGN KEY (branchId) REFERENCES BRANCH(branchId),
     FOREIGN KEY (copyId) REFERENCES BOOK_COPY(copyId)
 );
 
@@ -113,6 +117,8 @@ CREATE TABLE BORROW_BOOK_AT_BRANCH (
 	borrowingId INT AUTO_INCREMENT PRIMARY KEY,
     copyId INT,
     staffId INT,
+    branchId INT,
+    confirmStaff INT,
     customerName VARCHAR(255),
     citizenId VARCHAR(12),
     phoneNumber VARCHAR(10),
@@ -122,8 +128,10 @@ CREATE TABLE BORROW_BOOK_AT_BRANCH (
     returnDate TIMESTAMP,
     createdDate TIMESTAMP DEFAULT current_timestamp,
     FOREIGN KEY (staffId) REFERENCES USER(userId),
-    FOREIGN KEY (copyId) REFERENCES BOOK_COPY(copyId)
-);
+    FOREIGN KEY (copyId) REFERENCES BOOK_COPY(copyId),
+    FOREIGN KEY (confirmStaff) REFERENCES USER(userId),
+    FOREIGN KEY (branchId) REFERENCES BRANCH(branchId)
+  );
 
 DELIMITER //
 CREATE TRIGGER update_returnDate BEFORE INSERT ON BORROW_BOOK_AT_BRANCH
@@ -289,43 +297,94 @@ VALUES ("Giới thiệu sách mới", CAST('2023-12-20 12:12:12' AS datetime), "
 		("Nuoi duong tam hon", CAST('2023-12-20 12:12:12' AS datetime), "Nuoi duong tam hon", 5, 1),
         ("Vi ban xung dang", CAST('2023-12-20 12:12:12' AS datetime), "Vi ban xung dang", 9, 1),
         ("Never give up!", CAST('2023-12-20 12:12:12' AS datetime), "Never give up!", 13, 1);
+-- TRÀ --
 INSERT INTO DRINKS(drinksName, image)
-VALUES ("Coca", "coca.jpg"),
-		("Pepsi", "pepsi.jpg"),
-        ("7up", "7up.jpg"),
-        ("Sprite", "sprite.jpg");
+VALUES ("Trà đào", "tradao.png"),
+		("Trà vải", "travai.png"),
+        ("Trà ổi hồng", "traoihong.png"),
+        ("Trà bưởi dâu", "trabuoidau.png"),
+        ("Trà dâu", "tradau.png"),
+        ("Trà chanh sả biếc", "trachanhsabiec.png"),
+        ("Trà đào cam sả", "tradaocamsa.png"),
+        ("Trà tắc mật ong (nóng)", "tratacmatong.png"),
+        ("Trà gừng mật ong (nóng)", "tragungmatong.png");
 INSERT INTO DRINKS_SIZE(drinksId, size, price)
-VALUES (1, "S", 10000),
-		(1, "M", 20000),
-        (1, "L", 30000),
-        (2, "S", 10000),
-		(2, "M", 20000),
-        (2, "L", 30000),
-        (3, "S", 10000),
-		(3, "M", 20000),
-        (3, "L", 30000),
-        (4, "S", 10000),
-		(4, "M", 20000),
-        (4, "L", 30000);
+VALUES (1, "M", 35000),
+        (1, "L", 42000),
+		(2, "M", 35000),
+        (2, "L", 42000),
+		(3, "M", 35000),
+        (3, "L", 42000),
+		(4, "M", 35000),
+        (4, "L", 42000),
+		(5, "M", 35000),
+		(5, "L", 42000),
+		(6, "M", 40000),
+		(6, "L", 48000),
+		(7, "M", 38000),
+        (7, "L", 45000),
+		(8, "S", 32000),
+		(8, "M", 40000),
+		(9, "S", 32000),
+		(9, "M", 40000);
 
-INSERT INTO BILL(staffId, branchId)
-VALUES (2, 1),
-		(2, 1),
-        (2, 1),
-        (2, 1);
-INSERT INTO DRINKS_BILL(billId, drinksId, size, count)
-VALUES (1, 1, "S", 1),
-		(1, 2, "L", 1),
-        (1, 3, "M", 1),
-        (1, 4, "S", 1),
-        (2, 1, "L", 1),
-		(2, 2, "S", 1),
-        (2, 3, "M", 1),
-        (2, 4, "M", 1),
-        (3, 1, "S", 1),
-		(3, 2, "L", 1),
-        (3, 3, "M", 1),
-        (4, 1, "S", 1),
-		(4, 2, "S", 1),
-        (4, 3, "M", 1),
-        (4, 4, "L", 1);
+-- CAFE --
+INSERT INTO DRINKS(drinksName, image)
+VALUES ("Cafe đen", "cafeden.png"),
+		("Cafe sữa", "cafesua.png"),
+        ("Bạc xỉu", "bacxiu.png"),
+        ("Latte", "latte.png"),
+        ("Cacao", "cacao.png");
+INSERT INTO DRINKS_SIZE(drinksId, size, price)
+VALUES (10, "S", 32000),
+        (10, "M", 40000),
+		(11, "S", 35000),
+        (11, "M", 42000),
+		(12, "S", 35000),
+        (12, "M", 42000),
+		(13, "S", 38000),
+        (13, "M", 45000),
+		(14, "S", 38000),
+		(14, "M", 45000);
+
+-- NƯỚC ÉP --
+INSERT INTO DRINKS(drinksName, image)
+VALUES ("Nước ép cam", "epcam.png"),
+		("Nước ép cà rốt", "epcarot.png"),
+        ("Nước ép thơm", "thom.png"),
+        ("Nước ép táo", "eptao.png"),
+        ("Nước ép cam cà rốt", "epcamcarot.png"),
+        ("Nước ép sương sớm (táo, thơm, gừng)", "epsuongsom.png"),
+        ("Nước ép ban mai (táo, chanh dây)", "epbanmai.png");
+INSERT INTO DRINKS_SIZE(drinksId, size, price)
+VALUES (15, "M", 35000),
+        (15, "L", 42000),
+		(16, "M", 35000),
+        (16, "L", 42000),
+		(17, "M", 35000),
+        (17, "L", 42000),
+		(18, "M", 35000),
+        (18, "L", 42000),
+		(19, "M", 38000),
+		(19, "L", 45000),
+		(20, "M", 42000),
+		(20, "L", 50000),
+		(21, "M", 42000),
+		(21, "L", 50000);
+
+-- ĐÁ XAY --
+INSERT INTO DRINKS(drinksName, image)
+VALUES ("Đá xay chocolate", "xaychocolate.png"),
+		("Đá xay choco mint", "xaychocomint.png"),
+		("Đá xay cookie", "xaycookie.png"),
+		("Đá xay matcha", "xaymatcha.png");
+INSERT INTO DRINKS_SIZE(drinksId, size, price)
+VALUES (22, "M", 42000),
+        (22, "L", 50000),
+		(23, "M", 45000),
+        (23, "L", 55000),
+		(24, "M", 52000),
+        (24, "L", 60000),
+		(25, "M", 45000),
+        (25, "L", 52000);
+

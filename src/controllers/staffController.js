@@ -40,7 +40,7 @@ class StaffController {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (!results[0].image) {
+            if (!results[0] || !results[0].image) {
                 return res.sendStatus(404);
             }
             res.sendFile(path.join(__dirname, `../../${process.env.DRINKS_PATH}/${results[0].image}`));
