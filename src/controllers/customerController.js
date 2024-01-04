@@ -1,18 +1,5 @@
 const path = require('path');
 const db = require('../config/db');
-const multer = require('multer');
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, process.env.AVATAR_PATH)
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname)
-    }
-});
-
-const upload = multer({ storage: storage });
-
 
 const convertBookFormat = (books) => {
     const result = [];
@@ -44,20 +31,14 @@ const convertBookFormat = (books) => {
 class CustomerController {
 
     uploadAvatar(req, res) {
-        // create upload avatar function here
-        upload.single('avatar')(req, res, (err) => {
+        const sql = 'UPDATE user SET avatar = ? WHERE userId = ?';
+        const values = [req.file.originalname, req.userId];
+        db.query(sql, values, (err) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            const sql = 'UPDATE user SET avatar = ? WHERE userId = ?';
-            const values = [req.file.originalname, req.userId];
-            db.query(sql, values, (err) => {
-                if (err) {
-                    return res.sendStatus(500);
-                }
-                res.send({ message: 'Upload avatar successfully' });
-            });
-        })
+            res.send({ message: 'Upload avatar successfully' });
+        });
     }
 
     updateProfile(req, res) {
