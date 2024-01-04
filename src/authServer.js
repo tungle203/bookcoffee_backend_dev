@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const path = require('path');
 const multer = require('multer');
+const morgan = require('morgan');
 
 require('dotenv').config();
 
@@ -28,6 +28,8 @@ app.use(
     }),
 );
 app.use(express.json());
+
+app.use(morgan('dev'));
 
 app.use(cors());
 const generateTokens = (payload) => {

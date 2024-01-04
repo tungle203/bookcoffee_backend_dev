@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const db = require('../config/db');
 
 const convertDrinksFormat = (drinks) => {
@@ -44,12 +45,14 @@ class StaffController {
             if (!results[0] || !results[0].image) {
                 return res.sendStatus(404);
             }
-            res.sendFile(
-                path.join(
-                    __dirname,
-                    `../../${process.env.DRINKS_PATH}/${results[0].image}`,
-                ),
-            );
+
+            const drinksImagePath = path.join(__dirname,`../../${process.env.DRINKS_PATH}/${results[0].image}`,);
+
+            if (fs.existsSync(drinksImagePath)) {
+                res.sendFile(drinksImagePath);
+            } else {
+                res.sendStatus(404);
+            }
         });
     }
     addDrinksBill(req, res) {

@@ -1,6 +1,6 @@
 const path = require('path');
 const db = require('../config/db');
-
+const fs = require('fs');
 const convertBookFormat = (books) => {
     const result = [];
     const titleMap = {};
@@ -109,12 +109,15 @@ class CustomerController {
             if (!results[0].avatar) {
                 return res.sendStatus(404);
             }
-            res.sendFile(
-                path.join(
-                    __dirname,
-                    `../../${process.env.AVATAR_PATH}/${results[0].avatar}`,
-                ),
-            );
+
+            const avatarPath = path.join(__dirname,`../../${process.env.AVATAR_PATH}/${results[0].avatar}`)
+            
+            if (fs.existsSync(avatarPath)) {
+                res.sendFile(avatarPath);
+            } else {
+                res.sendStatus(404);
+            }
+            
         });
     }
 
@@ -130,12 +133,14 @@ class CustomerController {
             if (!results[0].image) {
                 return res.sendStatus(404);
             }
-            res.sendFile(
-                path.join(
-                    __dirname,
-                    `../../${process.env.BOOK_PATH}/${results[0].image}`,
-                ),
-            );
+
+            const bookImagePath = path.join(__dirname,`../../${process.env.BOOK_PATH}/${results[0].image}`,)
+
+            if (fs.existsSync(bookImagePath)) {
+                res.sendFile(bookImagePath);
+            } else {
+                res.sendStatus(404);
+            }
         });
     }
 
@@ -153,12 +158,14 @@ class CustomerController {
             if (!results[0].image) {
                 return res.sendStatus(404);
             }
-            res.sendFile(
-                path.join(
-                    __dirname,
-                    `../../${process.env.BRANCH_PATH}/${results[0].image}`,
-                ),
-            );
+
+            const branchImagePath = path.join(__dirname,`../../${process.env.BRANCH_PATH}/${results[0].image}`,)
+            
+            if (fs.existsSync(branchImagePath)) {
+                res.sendFile(branchImagePath);
+            } else {
+                res.sendStatus(404);
+            }
         });
     }
 
