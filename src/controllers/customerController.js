@@ -207,6 +207,25 @@ class CustomerController {
         });
     }
 
+    searchBookByGenre(req, res) {
+        const sql =
+            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, b.description, br.address, bc.isBorrowed, b.bookId\
+                        FROM BOOK AS b\
+                        LEFT JOIN book_copy AS bc\
+                        ON  b.bookId = bc.bookId\
+                        LEFT JOIN branch AS br\
+                        ON bc.branchId = br.branchId\
+                        JOIN author AS a\
+                        ON b.authorId = a.authorId\
+                        WHERE b.genre = ?';
+        db.query(sql, [req.query.genre], (err, results) => {
+            if (err) {
+                return res.sendStatus(500);
+            }
+            res.json(convertBookFormat(results));
+        });
+    }
+
     getBranchInfo(req, res) {
         const sql =
             'SELECT b.address, b.workingTime, u.userName AS managerName, u.email FROM branch AS b\

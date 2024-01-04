@@ -19,6 +19,7 @@ router.post('/changePassword', verifyToken, customerController.changePassword);
 router.get('/getBookImage/:bookId', customerController.getBookImage);
 router.get('/getBranchImage/:branchId', customerController.getBranchImage);
 router.get('/search', customerController.searchBook);
+router.get('/searchBookByGenre', customerController.searchBookByGenre);
 router.get('/branchInfo', customerController.getBranchInfo);
 router.post('/reservation', verifyToken, customerController.createReservation);
 router.get('/showReservation', verifyToken, customerController.showReservation);
