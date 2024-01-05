@@ -75,6 +75,7 @@ CREATE TABLE RESERVATIONS (
     branchId INT,
     userId INT,
     reservationDate TIMESTAMP,
+    confirmDate TIMESTAMP,
     isConfirm BOOL DEFAULT false,
     staffId INT,
     createdDate TIMESTAMP DEFAULT current_timestamp,

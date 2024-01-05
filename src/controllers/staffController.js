@@ -99,7 +99,7 @@ class StaffController {
 
     showReservation(req, res) {
         const sql =
-            'SELECT r.reservationId, u.userName, u.phoneNumber, u.email, b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
+            'SELECT r.reservationId, u.userName, u.phoneNumber, u.email, b.address, r.reservationDate, r.confirmDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
         JOIN USER AS u\
         ON r.userId = u.userId\
         JOIN BRANCH AS b\
@@ -119,7 +119,7 @@ class StaffController {
         if (!reservationId) return res.sendStatus(400);
 
         const sql =
-            'UPDATE RESERVATIONS SET staffId = ?, isConfirm = TRUE WHERE reservationId = ?';
+            'UPDATE RESERVATIONS SET staffId = ?, isConfirm = TRUE, confirmDate = current_timestamp WHERE reservationId = ?';
         const values = [req.userId, reservationId];
 
         db.query(sql, values, (err) => {
