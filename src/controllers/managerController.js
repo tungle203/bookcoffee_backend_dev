@@ -4,7 +4,7 @@ class managerController {
     showStaff(req, res) {
         const sql =
             ' \
-            SELECT u.userId as staffId, u.userName as staffName, u.disable, u.email, u.address, w.workingDate FROM USER as u \
+            SELECT u.userId as staffId, u.userName as staffName, u.disable, u.email, u.phoneNumber, u.address, w.workingDate FROM USER as u \
             JOIN WORK_ON as w \
             on u.userId = w.staffId \
             WHERE w.branchId = ? AND u.role = "staff"';

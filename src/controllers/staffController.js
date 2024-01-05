@@ -99,7 +99,7 @@ class StaffController {
 
     showReservation(req, res) {
         const sql =
-            'SELECT r.reservationId, u.userName, b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
+            'SELECT r.reservationId, u.userName, u.phoneNumber, u.email, b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
         JOIN USER AS u\
         ON r.userId = u.userId\
         JOIN BRANCH AS b\
@@ -229,7 +229,7 @@ class StaffController {
 
     showBorrowBookToGo(req, res) {
         let sql =
-            'SELECT bbtg.borrowingId, u.userName, bbtg.borrowDate, bbtg.returnDate, bbtg.isReturn, bbtg.deposit, b.title FROM BORROW_BOOK_TO_GO AS bbtg \
+            'SELECT bbtg.borrowingId, u.userName, u.email, u.phoneNumber, bbtg.borrowDate, bbtg.returnDate, bbtg.isReturn, bbtg.deposit, b.title FROM BORROW_BOOK_TO_GO AS bbtg \
         JOIN BOOK_COPY AS bc \
         ON bbtg.copyId = bc.copyId \
         JOIN BOOK AS b \
