@@ -46,7 +46,10 @@ class StaffController {
                 return res.sendStatus(404);
             }
 
-            const drinksImagePath = path.join(__dirname,`../../${process.env.DRINKS_PATH}/${results[0].image}`,);
+            const drinksImagePath = path.join(
+                __dirname,
+                `../../${process.env.DRINKS_PATH}/${results[0].image}`,
+            );
 
             if (fs.existsSync(drinksImagePath)) {
                 res.sendFile(drinksImagePath);

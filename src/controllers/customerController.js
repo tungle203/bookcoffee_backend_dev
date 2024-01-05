@@ -110,14 +110,16 @@ class CustomerController {
                 return res.sendStatus(404);
             }
 
-            const avatarPath = path.join(__dirname,`../../${process.env.AVATAR_PATH}/${results[0].avatar}`)
-            
+            const avatarPath = path.join(
+                __dirname,
+                `../../${process.env.AVATAR_PATH}/${results[0].avatar}`,
+            );
+
             if (fs.existsSync(avatarPath)) {
                 res.sendFile(avatarPath);
             } else {
                 res.sendStatus(404);
             }
-            
         });
     }
 
@@ -134,7 +136,10 @@ class CustomerController {
                 return res.sendStatus(404);
             }
 
-            const bookImagePath = path.join(__dirname,`../../${process.env.BOOK_PATH}/${results[0].image}`,)
+            const bookImagePath = path.join(
+                __dirname,
+                `../../${process.env.BOOK_PATH}/${results[0].image}`,
+            );
 
             if (fs.existsSync(bookImagePath)) {
                 res.sendFile(bookImagePath);
@@ -159,8 +164,11 @@ class CustomerController {
                 return res.sendStatus(404);
             }
 
-            const branchImagePath = path.join(__dirname,`../../${process.env.BRANCH_PATH}/${results[0].image}`,)
-            
+            const branchImagePath = path.join(
+                __dirname,
+                `../../${process.env.BRANCH_PATH}/${results[0].image}`,
+            );
+
             if (fs.existsSync(branchImagePath)) {
                 res.sendFile(branchImagePath);
             } else {
