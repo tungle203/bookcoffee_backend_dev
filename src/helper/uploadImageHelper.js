@@ -12,7 +12,16 @@ const uploadImage = (imageName, path) => {
 
     const upload = multer({ storage: storage });
 
-    return upload.single(imageName);
+    return function(req, res, next) {
+        upload.single(imageName) (req, res, next, (err) => {
+            if (err) {
+                return res.status(400).json({
+                    message: err.message,
+                });
+            }
+            next();
+        });
+    };
 };
 
 module.exports = uploadImage;

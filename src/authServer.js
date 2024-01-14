@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const db = require('./config/db');
 const verifyToken = require('./middleware/auth');
+const { handleErrorDB, handleErrorJWT } = require('./helper/handleErrorHelper');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -45,7 +46,7 @@ const generateTokens = (payload) => {
 
 const updateRefreshToken = (userId, refreshToken) => {
     const values = [refreshToken, userId];
-    const sql = 'UPDATE User SET refreshToken = ? WHERE userId = ? ';
+    const sql = 'UPDATE user SET refreshToken = ? WHERE userId = ? ';
     db.query(sql, values);
 };
 
@@ -62,7 +63,8 @@ app.post('/login', (req, res) => {
         ON w.branchId = b.branchId \
         WHERE u.userName = ? AND u.password = ?';
     db.query(sql, values, (err, results) => {
-        if (err || results.length === 0) return res.sendStatus(401);
+        if (err) return handleErrorDB(err, res);
+        if (results.length === 0) return res.sendStatus(401);
         if (results[0].disable)
             return res.status(403).send({ message: 'account is disabled' });
         const user = {
@@ -89,7 +91,7 @@ app.post('/token', (req, res) => {
     const values = [refreshToken];
     const sql = 'SELECT userId, userName FROM user WHERE refreshToken = ?';
     db.query(sql, values, (err, results) => {
-        if (err) return res.sendStatus(500);
+        if (err) return handleErrorDB(err, res);
         if (results.length === 0)
             return res.status(403).send({ message: 'invalid refreshToken' });
 
@@ -107,12 +109,7 @@ app.post('/token', (req, res) => {
             updateRefreshToken(user.userId, tokens.refreshToken);
             res.json(tokens);
         } catch (error) {
-            if (error.message === 'jwt expired')
-                return res
-                    .status(403)
-                    .send({ message: 'expired refreshToken' });
-
-            return res.status(403).send({ message: 'invalid refreshToken' });
+            return handleErrorJWT(error, res);
         }
     });
 });
@@ -136,11 +133,7 @@ app.post('/signup', upload.single('avatar'), (req, res) => {
     ];
 
     db.query(sql, values, (err) => {
-        if (err && err.code === 'ER_DUP_ENTRY')
-            return res.status(409).send({ message: 'username already exists' });
-        if (err) {
-            return res.sendStatus(500);
-        }
+        if (err) return handleErrorDB(err, res);
         res.sendStatus(201);
     });
 });

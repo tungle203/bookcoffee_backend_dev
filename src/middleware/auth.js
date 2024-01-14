@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const {handleErrorJWT} = require('../helper/handleErrorHelper');
+
 function verifyToken(req, res, next) {
     const authHeader = req.header('Authorization');
     const token = authHeader && authHeader.split(' ')[1];
@@ -13,13 +15,7 @@ function verifyToken(req, res, next) {
         req.branchId = decode.branchId;
         next();
     } catch (error) {
-        // "message": "expired token"
-        // "message": "invalid token"
-
-        if (error.message === 'jwt expired')
-            return res.status(403).send({ message: 'expired token' });
-
-        return res.status(403).send({ message: 'invalid token' });
+        return handleErrorJWT(error, res);
     }
 }
 
