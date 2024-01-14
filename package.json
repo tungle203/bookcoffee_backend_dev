@@ -4,9 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "server": "nodemon src/server.js",
     "auth": "nodemon src/authServer.js",
-    "beautify": "prettier --single-quote --trailing-comma all --tab-width 4 --write 'src/**/*.{js,json,scss}'"
+    "beautify": "prettier --single-quote --trailing-comma all --tab-width 4 --write 'src/**/*.{js,json,scss}'",
+    "start": "concurrently \"npm run server\" \"npm run auth\""
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "nodemon": "^3.0.1"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "morgan": "^1.10.0",
     "prettier": "^3.0.3"
   }
