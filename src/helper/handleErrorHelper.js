@@ -13,9 +13,9 @@ const handleErrorJWT = (error, res) => {
     // return status code and error message using switch case
     switch (error.message) {
         case 'jwt expired':
-            return res.status(403).send({ message: 'expired refreshToken' });
+            return res.status(403).send({ message: 'expired token' });
         default:
-            return res.status(403).send({ message: 'invalid refreshToken' });
+            return res.status(403).send({ message: 'invalid token' });
     }
 };
 

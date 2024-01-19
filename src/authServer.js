@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const cors = require('cors');
-const multer = require('multer');
 const morgan = require('morgan');
 
 require('dotenv').config();
@@ -11,16 +11,6 @@ const db = require('./config/db');
 const verifyToken = require('./middleware/auth');
 const { handleErrorDB, handleErrorJWT } = require('./helper/handleErrorHelper');
 
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, process.env.AVATAR_PATH);
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    },
-});
-
-const upload = multer({ storage: storage });
 
 // Body parser
 app.use(
@@ -33,11 +23,36 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.use(cors());
-const generateTokens = (payload) => {
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '10h',
+
+const generateKeyPair = () => {
+    const keyPair = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 4096,
+        publicKeyEncoding: {
+            type: 'pkcs1',
+            format: 'pem',
+        },
+        privateKeyEncoding: {
+            type: 'pkcs1',
+            format: 'pem',
+        },
     });
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+
+    return keyPair;
+};
+
+const updatePublicKey = (userId, publicKey) => {
+    const values = [publicKey, userId];
+    const sql = 'UPDATE user SET publicKey = ? WHERE userId = ? ';
+    db.query(sql, values);
+}
+
+const generateTokens = (payload, privateKey) => {
+    const accessToken = jwt.sign(payload, privateKey, {
+        algorithm: 'RS256',
+        expiresIn: '2h',
+    });
+    const refreshToken = jwt.sign(payload, privateKey, {
+        algorithm: 'RS256',
         expiresIn: '24h',
     });
 
@@ -72,10 +87,15 @@ app.post('/login', (req, res) => {
             role: results[0].role,
             branchId: results[0].branchId,
         };
-        const tokens = generateTokens(user);
+        const keyPair = generateKeyPair();
+        updatePublicKey(user.userId, keyPair.publicKey);
+
+        const tokens = generateTokens(user, keyPair.privateKey);
         updateRefreshToken(user.userId, tokens.refreshToken);
+
         res.json({
             ...tokens,
+            privateKey: keyPair.privateKey,
             userName,
             role: user.role,
             branchId: user.branchId,
@@ -85,27 +105,29 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/token', (req, res) => {
-    const refreshToken = req.body.refreshToken;
-    if (!refreshToken) return res.sendStatus(401);
+    const {refreshToken, privateKey} = req.body;
+    if (!refreshToken || !privateKey) return res.sendStatus(401);
 
     const values = [refreshToken];
-    const sql = 'SELECT userId, userName FROM user WHERE refreshToken = ?';
+    const sql = 'SELECT publicKey FROM user WHERE refreshToken = ?';
     db.query(sql, values, (err, results) => {
         if (err) return handleErrorDB(err, res);
         if (results.length === 0)
-            return res.status(403).send({ message: 'invalid refreshToken' });
+            return res.status(403).send({ message: 'invalid token' });
 
+        const publicKey = results[0].publicKey;
         try {
-            const decode = jwt.verify(
-                refreshToken,
-                process.env.REFRESH_TOKEN_SECRET,
-            );
+            const decode = jwt.verify(refreshToken, publicKey);
             const user = {
                 userId: decode.userId,
                 role: decode.role,
                 branchId: decode.branchId,
             };
-            const tokens = generateTokens(user);
+            const tokens = generateTokens(user, privateKey);
+            // maybe return private key to client?
+            // client will store private key in local storage
+            // client cant decode token because it is encoded by public key
+            // 
             updateRefreshToken(user.userId, tokens.refreshToken);
             res.json(tokens);
         } catch (error) {
@@ -116,20 +138,19 @@ app.post('/token', (req, res) => {
 
 app.post('/logout', verifyToken, (req, res) => {
     updateRefreshToken(req.userId, null);
+    updatePublicKey(req.userId, null);
     res.sendStatus(204);
 });
 
-app.post('/signup', upload.single('avatar'), (req, res) => {
-    const avatar = req.file ? req.file.filename : null;
+app.post('/signup', (req, res) => {
     const sql =
-        'INSERT INTO user(userName, password, email, address, avatar)\
-    VALUE (?,?,?,?,?)';
+        'INSERT INTO user(userName, password, email, address)\
+    VALUE (?,?,?,?)';
     const values = [
         req.body.userName,
         req.body.password,
         req.body.email,
-        req.body.address,
-        avatar,
+        req.body.address
     ];
 
     db.query(sql, values, (err) => {

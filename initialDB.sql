@@ -21,7 +21,8 @@ CREATE TABLE USER (
     avatar VARCHAR(255) DEFAULT 'default-avatar.jpg',
     role enum('customer','staff', 'manager', 'admin') DEFAULT 'customer',
     disable BOOL DEFAULT false,
-    refreshToken VARCHAR(255),
+    refreshToken TEXT,
+    publicKey TEXT,
     createdDate TIMESTAMP DEFAULT current_timestamp
 );
 
