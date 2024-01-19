@@ -46,7 +46,7 @@ const generateTokens = (payload) => {
 
 const updateRefreshToken = (userId, refreshToken) => {
     const values = [refreshToken, userId];
-    const sql = 'UPDATE user SET refreshToken = ? WHERE userId = ? ';
+    const sql = 'UPDATE _USER SET refreshToken = $1 WHERE userId = $2 ';
     db.query(sql, values);
 };
 
@@ -56,22 +56,23 @@ app.post('/login', (req, res) => {
 
     const values = [userName, password];
     const sql =
-        'SELECT u.userId, u.role, u.disable, w.branchId, b.address FROM user AS u \
-        LEFT JOIN WORK_ON as w \
+        'SELECT u.userId as "userId", u.role, u.disable, w.branchId as "branchId", b.address FROM _USER AS u \
+        LEFT JOIN _WORK_ON as w \
         ON u.userId = w.staffId \
-        LEFT JOIN BRANCH as b \
+        LEFT JOIN _BRANCH as b \
         ON w.branchId = b.branchId \
-        WHERE u.userName = ? AND u.password = ?';
+        WHERE u.userName = $1 AND u.password = $2';
     db.query(sql, values, (err, results) => {
         if (err) return handleErrorDB(err, res);
-        if (results.length === 0) return res.sendStatus(401);
-        if (results[0].disable)
+        if (results.rows.length === 0) return res.sendStatus(401);
+        if (results.rows[0].disable)
             return res.status(403).send({ message: 'account is disabled' });
         const user = {
-            userId: results[0].userId,
-            role: results[0].role,
-            branchId: results[0].branchId,
+            userId: results.rows[0].userId,
+            role: results.rows[0].role,
+            branchId: results.rows[0].branchId,
         };
+
         const tokens = generateTokens(user);
         updateRefreshToken(user.userId, tokens.refreshToken);
         res.json({
@@ -79,7 +80,7 @@ app.post('/login', (req, res) => {
             userName,
             role: user.role,
             branchId: user.branchId,
-            branchAddress: results[0].address,
+            branchAddress: results.rows[0].address,
         });
     });
 });
@@ -89,10 +90,10 @@ app.post('/token', (req, res) => {
     if (!refreshToken) return res.sendStatus(401);
 
     const values = [refreshToken];
-    const sql = 'SELECT userId, userName FROM user WHERE refreshToken = ?';
+    const sql = 'SELECT userId, userName FROM _USER WHERE refreshToken = $1';
     db.query(sql, values, (err, results) => {
         if (err) return handleErrorDB(err, res);
-        if (results.length === 0)
+        if (results.rows.length === 0)
             return res.status(403).send({ message: 'invalid refreshToken' });
 
         try {
@@ -122,8 +123,8 @@ app.post('/logout', verifyToken, (req, res) => {
 app.post('/signup', upload.single('avatar'), (req, res) => {
     const avatar = req.file ? req.file.filename : null;
     const sql =
-        'INSERT INTO user(userName, password, email, address, avatar)\
-    VALUE (?,?,?,?,?)';
+        'INSERT INTO _USER(userName, password, email, address, avatar)\
+    VALUE ($1, $2, $3, $4, $5)';
     const values = [
         req.body.userName,
         req.body.password,

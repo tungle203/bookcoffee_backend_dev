@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const db = require('../config/db');
+const { handleErrorDB } = require('../helper/handleErrorHelper');
 
 const convertDrinksFormat = (drinks) => {
     const result = [];
@@ -27,28 +28,28 @@ const convertDrinksFormat = (drinks) => {
 class StaffController {
     showDrinks(req, res) {
         const sql =
-            'SELECT d.drinksId, d.drinksName, d.image, ds.size, ds.price FROM DRINKS as d \
-        JOIN DRINKS_SIZE as ds \
+            'SELECT d.drinksId as "drinksId", d.drinksName as "drinksName", d.image, ds.size, ds.price FROM _DRINKS as d \
+        JOIN _DRINKS_SIZE as ds \
         ON d.drinksId = ds.drinksId';
         db.query(sql, (err, results) => {
             if (err) return res.sendStatus(500);
-            res.json(convertDrinksFormat(results));
+            res.json(convertDrinksFormat(results.rows));
         });
     }
 
     getDrinksImage(req, res) {
-        const sql = 'SELECT image FROM DRINKS WHERE drinksId = ?';
+        const sql = 'SELECT image FROM _DRINKS WHERE drinksId = $1';
         db.query(sql, [req.params.drinksId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (!results[0] || !results[0].image) {
+            if (!results.rows[0] || !results.rows[0].image) {
                 return res.sendStatus(404);
             }
 
             const drinksImagePath = path.join(
                 __dirname,
-                `../../${process.env.DRINKS_PATH}/${results[0].image}`,
+                `../../${process.env.DRINKS_PATH}/${results.rows[0].image}`,
             );
 
             if (fs.existsSync(drinksImagePath)) {
@@ -59,58 +60,60 @@ class StaffController {
         });
     }
     addDrinksBill(req, res) {
-        const sql = 'SELECT branchId FROM WORK_ON WHERE staffId = ?';
+        const sql = 'SELECT branchId as "branchId" FROM _WORK_ON WHERE staffId = $1';
         db.query(sql, [req.userId], (err, results) => {
             if (err) return res.sendStatus(500);
-            const sql1 = 'INSERT INTO BILL(staffId, branchId) VALUES (?,?);';
-            const values = [req.userId, results[0].branchId];
+            const sql1 = 'INSERT INTO _BILL(staffId, branchId) VALUES ($1, $2) RETURNING billId';
+            const values = [req.userId, results.rows[0].branchId];
 
             db.query(sql1, values, (err, results) => {
                 if (err) return res.sendStatus(500);
                 let sql2 =
-                    'BEGIN; \
-                INSERT INTO DRINKS_BILL(billId, drinksId, size, count) VALUES ';
+                    'INSERT INTO _DRINKS_BILL(billId, drinksId, size, count) VALUES ';
                 let values = [];
+                let position = 1;
                 req.body.map((item) => {
-                    sql2 += '(?,?,?,?),';
-                    values.push(results.insertId);
+                    sql2 += `($${position++}, $${position++}, $${position++}, $${position++}),`;
+                    values.push(results.rows[0].billid);
                     values.push(item.drinksId);
                     values.push(item.size);
                     values.push(item.quantity);
                 });
                 sql2 = sql2.slice(0, -1);
-                sql2 +=
-                    '; \
-                SELECT price FROM BILL WHERE billId = ?;\
-                SELECT userName FROM USER WHERE userId = ?;\
-                COMMIT;';
-                values.push(results.insertId);
-                values.push(req.userId);
-                db.query(sql2, values, (err, results) => {
-                    if (err) return res.sendStatus(500);
-                    res.status(201).send({
-                        price: results[2][0].price,
-                        staffName: results[3][0].userName,
-                    });
-                });
+                sql2 += ';';
+                
+                db.query(sql2, values, (err) => {
+                    if (err) return handleErrorDB(err, res);
+
+                    const sql3 = `SELECT price FROM _BILL WHERE billId = $1`;
+
+                    db.query(sql3, [results.rows[0].billid], (err, price) => {
+                        if(err) return handleErrorDB(err, res);
+                        const sql4 = `SELECT userName as "userName" FROM _USER WHERE userId = $1`
+                        db.query(sql4, [req.userId], (err, userName) => {
+                            if(err) return handleErrorDB(err, res);
+                            res.status(201).json({price: price.rows[0].price, staffName: userName.rows[0].userName});
+                        })
+                });                
             });
         });
+    });
     }
 
     showReservation(req, res) {
         const sql =
-            'SELECT r.reservationId, u.userName, u.phoneNumber, u.email, b.address, r.reservationDate, r.confirmDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
-        JOIN USER AS u\
+            'SELECT r.reservationId as "reservationId", u.userName as "userName", u.phoneNumber as "phoneNumber", u.email, b.address, r.reservationDate as "reservationDate", r.confirmDate as "confirmDate", r.quantity, r.isConfirm as "isConfirm" FROM _RESERVATIONS AS r\
+        JOIN _USER AS u\
         ON r.userId = u.userId\
-        JOIN BRANCH AS b\
+        JOIN _BRANCH AS b\
         ON r.branchId = b.branchId\
-        WHERE r.branchId = ?';
+        WHERE r.branchId = $1';
 
         db.query(sql, [req.branchId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(results);
+            res.json(results.rows);
         });
     }
 
@@ -119,7 +122,7 @@ class StaffController {
         if (!reservationId) return res.sendStatus(400);
 
         const sql =
-            'UPDATE RESERVATIONS SET staffId = ?, isConfirm = TRUE, confirmDate = current_timestamp WHERE reservationId = ?';
+            'UPDATE _RESERVATIONS SET staffId = $1, isConfirm = TRUE, confirmDate = current_timestamp WHERE reservationId = $2';
         const values = [req.userId, reservationId];
 
         db.query(sql, values, (err) => {

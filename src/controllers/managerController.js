@@ -1,13 +1,14 @@
 const db = require('../config/db');
-
+const { handleErrorDB } = require('../helper/handleErrorHelper');
 class managerController {
     showStaff(req, res) {
         const sql =
             ' \
-            SELECT u.userId as staffId, u.userName as staffName, u.disable, u.email, u.phoneNumber, u.address, w.workingDate FROM USER as u \
-            JOIN WORK_ON as w \
+            SELECT u.userId as "staffId", u.userName as "staffName", u.disable, u.email, u.phoneNumber as "phoneNumber", u.address, w.workingDate as "workingDate" \
+            FROM _USER as u \
+            JOIN _WORK_ON as w \
             on u.userId = w.staffId \
-            WHERE w.branchId = ? AND u.role = "staff"';
+            WHERE w.branchId = $1 AND u.role = "staff"';
 
         let values = [];
         if (req.role === 'manager') values = [req.branchId];
@@ -15,14 +16,14 @@ class managerController {
 
         db.query(sql, values, (err, results) => {
             if (err) return res.sendStatus(500);
-            res.json(results);
+            res.json(results.rows);
         });
     }
 
     addStaff(req, res) {
         const sql =
-            'INSERT INTO user(userName, password, email, address, role)\
-        VALUE (?,?,?,?,?)';
+            'INSERT INTO _USER(userName, password, email, address, role)\
+        VALUE ($1, $2, $3, $4, $5)';
         const values = [
             req.body.staffName,
             req.body.password,
@@ -32,12 +33,8 @@ class managerController {
         ];
 
         db.query(sql, values, (err, results) => {
-            if (err && err.code === 'ER_DUP_ENTRY')
-                return res
-                    .status(409)
-                    .send({ message: 'username already exists' });
             if (err) {
-                return res.sendStatus(500);
+                return handleErrorDB(err, res);
             }
             let values = [];
 
@@ -47,7 +44,7 @@ class managerController {
             if (req.role === 'admin')
                 values = [results.insertId, req.body.branchId];
 
-            const sql1 = 'INSERT INTO work_on(staffId, branchId) VALUES(?,?)';
+            const sql1 = 'INSERT INTO _WORK_ON(staffId, branchId) VALUES($1, $2)';
             db.query(sql1, values, (err) => {
                 if (err) {
                     return res.sendStatus(500);
@@ -61,17 +58,17 @@ class managerController {
         if (!staffId) return res.sendStatus(400);
 
         const sql1 =
-            'SELECT branchId FROM WORK_ON as W \
-            JOIN user as u \
+            'SELECT branchId as "branchId" FROM _WORK_ON as w \
+            JOIN _USER as u \
             ON w.staffId = u.userId \
-            WHERE staffId = ? and u.role = "staff"';
+            WHERE staffId = $1 and u.role = "staff"';
         db.query(sql1, [staffId], (err, staff) => {
             if (err) return res.sendStatus(500);
             if (!staff[0]) return res.sendStatus(400);
 
             if (req.role === 'manager' && staff[0].branchId !== req.branchId)
                 return res.sendStatus(400);
-            const sql2 = 'UPDATE USER SET disable = !disable WHERE userId = ?;';
+            const sql2 = 'UPDATE _USER SET disable = !disable WHERE userId = $1';
             db.query(sql2, [staffId], (err) => {
                 if (err) return res.sendStatus(500);
                 res.sendStatus(200);
@@ -80,21 +77,22 @@ class managerController {
     }
 
     addBookCopies(req, res) {
-        const sql1 = 'SELECT bookId FROM BOOK WHERE title = ?';
+        const sql1 = 'SELECT bookId as "bookId" FROM _BOOK WHERE title = $1';
         db.query(sql1, [req.body.title], (err, results) => {
             if (err) return res.sendStatus(500);
             if (!results[0]) return res.sendStatus(400);
             const bookId = results[0].bookId;
             let sql =
                 'BEGIN; \
-            INSERT INTO book_copy(branchId, bookId) VALUES';
+            INSERT INTO _BOOK_COPY(branchId, bookId) VALUES';
             let values = [];
             let branchId = -1;
+            let position = 1;
             if (req.role === 'manager') branchId = req.branchId;
             if (req.role === 'admin') branchId = req.body.branchId;
 
-            for (let i = 0; i < req.body.numCopies; i++) {
-                sql += '(?,?),';
+            for (let i = 1; i <= req.body.numCopies; i++) {
+                sql += `($${position++}, $${position++}),`;
                 values.push(branchId);
                 values.push(bookId);
             }

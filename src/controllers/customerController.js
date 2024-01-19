@@ -31,7 +31,7 @@ const convertBookFormat = (books) => {
 
 class CustomerController {
     uploadAvatar(req, res) {
-        const sql = 'UPDATE user SET avatar = ? WHERE userId = ?';
+        const sql = 'UPDATE _USER SET avatar = $1 WHERE userId = $2';
         const values = [req.file.originalname, req.userId];
         db.query(sql, values, (err) => {
             if (err) {
@@ -45,26 +45,27 @@ class CustomerController {
         const { email, address, phoneNumber } = req.body;
         if (!phoneNumber && !email && !address) res.sendStatus(400);
 
-        let sql = 'UPDATE user SET ';
+        let sql = 'UPDATE _USER SET ';
         let values = [];
+        let position = 1;
 
         if (email) {
-            sql += 'email = ?,';
+            sql += `email = $${position++},`;
             values.push(email);
         }
 
         if (address) {
-            sql += 'address = ?,';
+            sql += `address = $${position++},`;
             values.push(address);
         }
 
         if (phoneNumber) {
-            sql += 'phoneNumber = ?,';
+            sql += `phoneNumber = $${position++},`;
             values.push(phoneNumber);
         }
 
         sql = sql.slice(0, -1);
-        sql += 'WHERE userId = ?';
+        sql += `WHERE userId = $${position++}`;
         values.push(req.userId);
         db.query(sql, values, (err) => {
             if (err) res.sendStatus(500);
@@ -76,12 +77,12 @@ class CustomerController {
         const { oldPassword, newPassword } = req.body;
         if (!oldPassword || !newPassword) return res.sendStatus(400);
 
-        const sql = 'SELECT password FROM user WHERE userId = ?';
+        const sql = 'SELECT password FROM _USER WHERE userId = $1';
         db.query(sql, [req.userId], (err, results) => {
             if (err) return res.sendStatus(500);
-            if (results[0].password !== oldPassword) return res.sendStatus(400);
+            if (results.rows[0].password !== oldPassword) return res.sendStatus(400);
 
-            const sql1 = 'UPDATE user SET password = ? WHERE userId = ?';
+            const sql1 = 'UPDATE _USER SET password = $1 WHERE userId = $2';
             db.query(sql1, [newPassword, req.userId], (err) => {
                 if (err) return res.sendStatus(500);
                 res.sendStatus(200);
@@ -91,28 +92,29 @@ class CustomerController {
 
     getProfile(req, res) {
         const sql =
-            'SELECT userName, email, address, phoneNumber FROM user WHERE userId = ?';
+            'SELECT userName as "userName", email, address, phoneNumber as "phoneNumber" FROM _USER WHERE userId = $1';
         db.query(sql, [req.userId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(results[0]);
+            res.json(results.rows[0]);
         });
     }
 
     getAvatar(req, res) {
-        const sql = 'SELECT avatar FROM user WHERE userId = ?';
+        const sql = 'SELECT avatar FROM _USER WHERE userId = $1';
         db.query(sql, [req.userId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (!results[0].avatar) {
+
+            if (!results.rows[0] || !results.rows[0].avatar) {
                 return res.sendStatus(404);
             }
 
             const avatarPath = path.join(
                 __dirname,
-                `../../${process.env.AVATAR_PATH}/${results[0].avatar}`,
+                `../../${process.env.AVATAR_PATH}/${results.rows[0].avatar}`,
             );
 
             if (fs.existsSync(avatarPath)) {
@@ -124,21 +126,21 @@ class CustomerController {
     }
 
     getBookImage(req, res) {
-        const sql = 'SELECT image FROM BOOK WHERE bookId = ?';
+        if(!req.params.bookId) return res.sendStatus(400);
+
+        const sql = `SELECT image FROM _BOOK WHERE bookId = $1`;
+
         db.query(sql, [req.params.bookId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            if (!results[0]) {
-                return res.sendStatus(404);
-            }
-            if (!results[0].image) {
+            if (!results.rows[0] || !results.rows[0].image) {
                 return res.sendStatus(404);
             }
 
             const bookImagePath = path.join(
                 __dirname,
-                `../../${process.env.BOOK_PATH}/${results[0].image}`,
+                `../../${process.env.BOOK_PATH}/${results.rows[0].image}`,
             );
 
             if (fs.existsSync(bookImagePath)) {
@@ -150,23 +152,19 @@ class CustomerController {
     }
 
     getBranchImage(req, res) {
-        const sql = 'SELECT image FROM BRANCH WHERE branchId = ?';
+        const sql = 'SELECT image FROM _BRANCH WHERE branchId = $1';
         db.query(sql, [req.params.branchId], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
 
-            if (!results[0]) {
-                return res.sendStatus(404);
-            }
-
-            if (!results[0].image) {
+            if (!results.rows[0] || !results.rows[0].image) {
                 return res.sendStatus(404);
             }
 
             const branchImagePath = path.join(
                 __dirname,
-                `../../${process.env.BRANCH_PATH}/${results[0].image}`,
+                `../../${process.env.BRANCH_PATH}/${results.rows[0].image}`,
             );
 
             if (fs.existsSync(branchImagePath)) {
@@ -179,19 +177,20 @@ class CustomerController {
 
     searchBook(req, res) {
         let sql =
-            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, b.description, br.address, bc.isBorrowed, b.bookId\
-                        FROM BOOK AS b\
-                        LEFT JOIN book_copy AS bc\
+            'SELECT bc.copyId as "copyId", b.title, a.authorName as "authorName", b.genre, b.publicationYear as "publicationYear", b.salePrice as "salePrice", b.description, br.address, bc.isBorrowed as "isBorrowed", b.bookId as "bookId"\
+                        FROM _BOOK AS b\
+                        LEFT JOIN _BOOK_COPY AS bc\
                         ON  b.bookId = bc.bookId\
-                        LEFT JOIN branch AS br\
+                        LEFT JOIN _BRANCH AS br\
                         ON bc.branchId = br.branchId\
-                        JOIN author AS a\
+                        JOIN _AUTHORS AS a\
                         ON b.authorId = a.authorId ';
         let values = [];
+        let position = 1;
 
         if (req.query.title && req.query.address) {
             sql +=
-                'WHERE (b.title LIKE ? OR a.authorName LIKE ?) AND br.address = ?';
+                `WHERE (b.title LIKE $${position++} OR a.authorName LIKE $${position++}) AND br.address = $${position++}`;
             values = [
                 `%${req.query.title}%`,
                 `%${req.query.title}%`,
@@ -200,17 +199,17 @@ class CustomerController {
         }
 
         if (req.query.title && !req.query.address) {
-            sql += 'WHERE (b.title LIKE ? OR a.authorName LIKE ?)';
+            sql += `WHERE (b.title LIKE $${position++} OR a.authorName LIKE $${position++})`;
             values = [`%${req.query.title}%`, `%${req.query.title}%`];
         }
 
         if (!req.query.title && req.query.address) {
-            sql += 'WHERE br.address = ?';
+            sql += `WHERE br.address = $${position++}`;
             values = [req.query.address];
         }
 
         if (req.branchId) {
-            sql += ' AND br.branchId = ?';
+            sql += ` AND br.branchId = $${position++}`;
             values.push(req.branchId);
         }
 
@@ -218,39 +217,39 @@ class CustomerController {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(convertBookFormat(results));
+            res.json(convertBookFormat(results.rows));
         });
     }
 
     searchBookByGenre(req, res) {
         const sql =
-            'SELECT bc.copyId, b.title, a.authorName, b.genre, b.publicationYear, b.salePrice, b.description, br.address, bc.isBorrowed, b.bookId\
-                        FROM BOOK AS b\
-                        LEFT JOIN book_copy AS bc\
+            'SELECT bc.copyId as "copyId", b.title, a.authorName as "authorName", b.genre, b.publicationYear as "publicationYear", b.salePrice as "salePrice", b.description, br.address, bc.isBorrowed as "isBorrowed", b.bookId as "bookId"\
+                        FROM _BOOK AS b\
+                        LEFT JOIN _BOOK_COPY AS bc\
                         ON  b.bookId = bc.bookId\
-                        LEFT JOIN branch AS br\
+                        LEFT JOIN _BRANCH AS br\
                         ON bc.branchId = br.branchId\
-                        JOIN author AS a\
+                        JOIN _AUTHORS AS a\
                         ON b.authorId = a.authorId\
-                        WHERE b.genre = ?';
+                        WHERE b.genre = $1';
         db.query(sql, [req.query.genre], (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(convertBookFormat(results));
+            res.json(convertBookFormat(results.rows));
         });
     }
 
     getBranchInfo(req, res) {
         const sql =
-            'SELECT b.address, b.workingTime, u.userName AS managerName, u.email FROM branch AS b\
-        JOIN user AS u\
+            'SELECT b.address, b.workingTime as "workingTime", u.userName AS "managerName", u.email FROM _BRANCH AS b\
+        JOIN _USER AS u\
         ON b.managerId = u.userId';
         db.query(sql, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(results);
+            res.json(results.rows);
         });
     }
 
@@ -258,16 +257,16 @@ class CustomerController {
         if (!req.body.address || !req.body.quantity || !req.body.date)
             return res.sendStatus(400);
 
-        const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
+        const branchIdQuery = 'SELECT branchId as "branchId" FROM _BRANCH WHERE address = $1';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
             if (err) {
                 return res.sendStatus(500);
             }
 
-            const branchId = result[0].branchId;
+            const branchId = result.rows[0].branchId;
 
             const insertQuery =
-                'INSERT INTO reservations(userId, branchId, quantity, reservationDate) VALUES (?,?,?,?)';
+                'INSERT INTO _RESERVATIONS(userId, branchId, quantity, reservationDate) VALUES ($1,$2,$3,$4)';
             const values = [
                 req.userId,
                 branchId,
@@ -287,8 +286,8 @@ class CustomerController {
 
     showReservation(req, res) {
         const sql =
-            'SELECT b.address, r.reservationDate, r.quantity, r.isConfirm FROM RESERVATIONS AS r\
-        JOIN BRANCH AS b\
+            'SELECT b.address, r.reservationDate as "reservationDate", r.quantity, r.isConfirm as "isConfirm" FROM _RESERVATIONS AS r\
+        JOIN _BRANCH AS b\
         ON r.branchId = b.branchId\
         WHERE r.userId = ?';
 
@@ -296,7 +295,7 @@ class CustomerController {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(results);
+            res.json(results.rows);
         });
     }
 
@@ -309,15 +308,15 @@ class CustomerController {
         )
             return res.sendStatus(400);
 
-        const branchIdQuery = 'SELECT branchId FROM branch WHERE address = ?';
+        const branchIdQuery = 'SELECT branchId as "branchId" FROM branch WHERE address = $1';
         db.query(branchIdQuery, [req.body.address], (err, result) => {
             if (err) {
                 return res.sendStatus(500);
             }
 
-            const branchId = result[0].branchId;
+            const branchId = result.rows[0].branchId;
             const insertQuery =
-                'INSERT INTO meetings(hostId, branchId, meetingName, meetingDate, description) VALUES (?,?,?,?,?)';
+                'INSERT INTO meetings(hostId, branchId, meetingName, meetingDate, description) VALUES ($1,$2,$3,$4,$5)';
             const values = [
                 req.userId,
                 branchId,
@@ -337,32 +336,19 @@ class CustomerController {
     }
 
     showBookBorrowing(req, res) {
-        const userName = req.body.userName;
-
-        const returnResult = (userID) => {
             const sql =
-                'SELECT bc.copyId, b.title, bb.borrowingDate\
-            FROM bookborrowings AS bb\
-            JOIN book_Copy AS bc\
+                'SELECT bc.copyId, b.title, bb.borrowDate as "borrowDate", bb.returnDate as "returnDate", bb.isReturn as "isReturn", bb.deposit\
+            FROM _BORROW_BOOK_TO_GO AS bb\
+            JOIN _BOOK_COPY AS bc\
             ON bb.copyId = bc.copyId\
-            JOIN book AS b\
+            JOIN _BOOK AS b\
             ON bc.bookId = b.bookId\
-            WHERE bb.userId = ?';
-            db.query(sql, [userID], (err, results) => {
+            WHERE bb.userId = $1';
+            db.query(sql, [req.userId], (err, results) => {
                 if (err) return res.sendStatus(500);
-                res.json(results);
+                res.json(results.rows);
             });
         };
-
-        if (userName) {
-            const sql1 = 'SELECT userId FROM user WHERE userName = ?';
-            db.query(sql1, [userName], (err, results) => {
-                if (err) return res.sendStatus(500);
-                if (!results[0]) return res.sendStatus(400);
-                returnResult(results[0].userId);
-            });
-        } else returnResult(req.userId);
-    }
 }
 
 module.exports = new CustomerController();
