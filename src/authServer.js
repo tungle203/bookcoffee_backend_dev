@@ -115,7 +115,7 @@ app.post('/token', (req, res) => {
         if (results.length === 0)
             return res.status(403).send({ message: 'invalid token' });
         const publicKey = results[0].publicKey;
-        
+
         const sql1 = 'SELECT privateKey FROM PRIVATE_KEY WHERE userId = ?';
         connectionPK.query(sql1, [results[0].userId], (err, results) => {
             if (err) return handleErrorDB(err, res);
@@ -145,7 +145,7 @@ app.post('/token', (req, res) => {
 
 app.post('/logout', verifyToken, (req, res) => {
     updateRefreshToken(req.userId, null);
-    updatePublicKey(req.userId, null);
+    updateKeyPair(req.userId, null, null);
     res.sendStatus(204);
 });
 
