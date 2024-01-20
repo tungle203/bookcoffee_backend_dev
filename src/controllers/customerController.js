@@ -1,5 +1,6 @@
 const path = require('path');
 const { connection: db} = require('../config/db');
+const cache = require('../service/cacheService');
 const fs = require('fs');
 const convertBookFormat = (books) => {
     const result = [];
@@ -209,16 +210,18 @@ class CustomerController {
             values = [req.query.address];
         }
 
-        if (req.branchId) {
-            sql += ' AND br.branchId = ?';
-            values.push(req.branchId);
-        }
+        // if (req.branchId) {
+        //     sql += ' AND br.branchId = ?';
+        //     values.push(req.branchId);
+        // }
 
         db.query(sql, values, (err, results) => {
             if (err) {
                 return res.sendStatus(500);
             }
-            res.json(convertBookFormat(results));
+            const books = convertBookFormat(results);
+            cache.set('book', books, 100);
+            res.json(books);
         });
     }
 
@@ -250,6 +253,7 @@ class CustomerController {
             if (err) {
                 return res.sendStatus(500);
             }
+            cache.set('branch', results);
             res.json(results);
         });
     }

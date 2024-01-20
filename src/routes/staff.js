@@ -3,9 +3,10 @@ const router = express.Router();
 
 const verifyToken = require('../middleware/auth');
 const verifyPermission = require('../middleware/permission');
+const verifyCache = require('../middleware/cache');
 const staffController = require('../controllers/staffController');
 
-router.get('/showDrinks', staffController.showDrinks);
+router.get('/showDrinks', verifyCache('drinks'), staffController.showDrinks);
 router.get('/getDrinksImage/:drinksId', staffController.getDrinksImage);
 router.post(
     '/addBill',

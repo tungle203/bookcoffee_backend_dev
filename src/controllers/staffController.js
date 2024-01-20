@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { connection: db} = require('../config/db');
+const cache = require('../service/cacheService');
 
 const convertDrinksFormat = (drinks) => {
     const result = [];
@@ -32,7 +33,10 @@ class StaffController {
         ON d.drinksId = ds.drinksId';
         db.query(sql, (err, results) => {
             if (err) return res.sendStatus(500);
-            res.json(convertDrinksFormat(results));
+
+            const drinks = convertDrinksFormat(results);
+            cache.set('drinks', drinks);
+            res.json(drinks);
         });
     }
 
