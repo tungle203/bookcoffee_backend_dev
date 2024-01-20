@@ -7,7 +7,7 @@ const morgan = require('morgan');
 
 require('dotenv').config();
 
-const db = require('./config/db');
+const { connection: db, connectionPK } = require('./config/db');
 const verifyToken = require('./middleware/auth');
 const { handleErrorDB, handleErrorJWT } = require('./helper/handleErrorHelper');
 
@@ -40,10 +40,11 @@ const generateKeyPair = () => {
     return keyPair;
 };
 
-const updatePublicKey = (userId, publicKey) => {
-    const values = [publicKey, userId];
-    const sql = 'UPDATE user SET publicKey = ? WHERE userId = ? ';
-    db.query(sql, values);
+const updateKeyPair = (userId, publicKey, privateKey) => {
+    const sql1 = 'UPDATE user SET publicKey = ? WHERE userId = ? ';
+    const sql2 = 'UPDATE PRIVATE_KEY SET privateKey = ? WHERE userId = ? ';
+    db.query(sql1, [publicKey, userId]);
+    connectionPK.query(sql2, [privateKey, userId]);
 }
 
 const generateTokens = (payload, privateKey) => {
@@ -88,14 +89,13 @@ app.post('/login', (req, res) => {
             branchId: results[0].branchId,
         };
         const keyPair = generateKeyPair();
-        updatePublicKey(user.userId, keyPair.publicKey);
+        updateKeyPair(user.userId, keyPair.publicKey, keyPair.privateKey);
 
         const tokens = generateTokens(user, keyPair.privateKey);
         updateRefreshToken(user.userId, tokens.refreshToken);
 
         res.json({
             ...tokens,
-            privateKey: keyPair.privateKey,
             userName,
             role: user.role,
             branchId: user.branchId,
@@ -105,34 +105,41 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/token', (req, res) => {
-    const {refreshToken, privateKey} = req.body;
-    if (!refreshToken || !privateKey) return res.sendStatus(401);
+    const {refreshToken} = req.body;
+    if (!refreshToken) return res.sendStatus(401);
 
     const values = [refreshToken];
-    const sql = 'SELECT publicKey FROM user WHERE refreshToken = ?';
+    const sql = 'SELECT publicKey, userId FROM user WHERE refreshToken = ?';
     db.query(sql, values, (err, results) => {
         if (err) return handleErrorDB(err, res);
         if (results.length === 0)
             return res.status(403).send({ message: 'invalid token' });
-
         const publicKey = results[0].publicKey;
-        try {
-            const decode = jwt.verify(refreshToken, publicKey);
-            const user = {
-                userId: decode.userId,
-                role: decode.role,
-                branchId: decode.branchId,
-            };
-            const tokens = generateTokens(user, privateKey);
-            // maybe return private key to client?
-            // client will store private key in local storage
-            // client cant decode token because it is encoded by public key
-            // 
-            updateRefreshToken(user.userId, tokens.refreshToken);
-            res.json(tokens);
-        } catch (error) {
-            return handleErrorJWT(error, res);
-        }
+        
+        const sql1 = 'SELECT privateKey FROM PRIVATE_KEY WHERE userId = ?';
+        connectionPK.query(sql1, [results[0].userId], (err, results) => {
+            if (err) return handleErrorDB(err, res);
+            if (results.length === 0)
+                return res.status(403).send({ message: 'invalid token' });
+
+            const privateKey = results[0].privateKey;
+
+            try {
+                const decode = jwt.verify(refreshToken, publicKey);
+                const user = {
+                    userId: decode.userId,
+                    role: decode.role,
+                    branchId: decode.branchId,
+                };
+                const tokens = generateTokens(user, privateKey);
+
+                updateRefreshToken(user.userId, tokens.refreshToken);
+                res.json(tokens);
+            } catch (error) {
+                return handleErrorJWT(error, res);
+            }
+
+        });
     });
 });
 

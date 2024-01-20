@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const db = require('../config/db');
+const { connection: db} = require('../config/db');
 const {handleErrorJWT} = require('../helper/handleErrorHelper');
 
 function verifyToken(req, res, next) {

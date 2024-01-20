@@ -1,5 +1,5 @@
 const path = require('path');
-const db = require('../config/db');
+const { connection: db} = require('../config/db');
 const fs = require('fs');
 const convertBookFormat = (books) => {
     const result = [];

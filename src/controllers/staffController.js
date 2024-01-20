@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const db = require('../config/db');
+const { connection: db} = require('../config/db');
 
 const convertDrinksFormat = (drinks) => {
     const result = [];

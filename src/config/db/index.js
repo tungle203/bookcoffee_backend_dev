@@ -13,5 +13,15 @@ const connection = mysql.createPool({
     multipleStatements: true,
 });
 
+const connectionPK = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_PRIVATE_KEY,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    multipleStatements: true,
+});
 //connect to database
-module.exports = connection;
+module.exports = {connection, connectionPK};
