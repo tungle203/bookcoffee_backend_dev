@@ -1,8 +1,10 @@
-drop database DAHTTT; 
+drop database bookcoffee_PK;
+drop database bookcoffee; 
 
-create database DAHTTT;
+create database bookcoffee;
+CREATE database bookcoffee_PK;
 
-use DAHTTT;
+use bookcoffee;
 
 CREATE TABLE AUTHOR (
 	authorId INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,6 +27,26 @@ CREATE TABLE USER (
     publicKey TEXT,
     createdDate TIMESTAMP DEFAULT current_timestamp
 );
+
+CREATE TABLE bookcoffee_PK.PRIVATE_KEY (
+	keyId INT AUTO_INCREMENT PRIMARY KEY,
+	userId INT,
+	privateKey TEXT,
+	FOREIGN KEY (userId) REFERENCES bookcoffee.USER(userId)
+);
+
+
+DELIMITER //
+CREATE TRIGGER update_privateKey AFTER INSERT ON USER
+FOR EACH ROW
+BEGIN
+    INSERT INTO bookcoffee_PK.PRIVATE_KEY(userId) VALUES (new.userId);
+END;
+//
+DELIMITER ;
+
+
+
 
 CREATE TABLE BRANCH (
 	branchId INT AUTO_INCREMENT PRIMARY KEY,
@@ -609,4 +631,3 @@ VALUES (22, "M", 42000),
         (24, "L", 60000),
 		(25, "M", 45000),
         (25, "L", 52000);
-
