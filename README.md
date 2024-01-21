@@ -42,7 +42,7 @@ This API uses JSON Web Tokens (JWT) for authentication. To access protected endp
 
 ## Get Started
 - Clone the repository: `git clone https://github.com/tungle203/bookcoffee_backend_dev.git`
-- Initialize mySQL database by *initialDB.sql* file
+- Initialize mySQL database by *initialDB.sql* file and config .env file to connect database
 - Install dependencies: `npm install`
 - Start the development server: `npm start`
 - Explore the API using Postman or your preferred tool.
