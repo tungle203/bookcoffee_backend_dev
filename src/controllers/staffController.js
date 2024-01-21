@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { connection: db} = require('../config/db');
+const { connection: db } = require('../config/db');
 const cache = require('../service/cacheService');
 
 const convertDrinksFormat = (drinks) => {
@@ -137,24 +137,34 @@ class StaffController {
     borrowBookAtBranch(req, res) {
         const { copyId, userName, idCard, phoneNumber, address } = req.body;
         if (!copyId || !userName) return res.sendStatus(400);
-        const sql =
-            'BEGIN; \
-        INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, customerName, citizenId, phoneNumber, address, staffId, branchId) VALUES (?,?,?,?,?,?,?); \
-        UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
-        COMMIT;';
-        const values = [
-            copyId,
-            userName,
-            idCard,
-            phoneNumber,
-            address,
-            req.userId,
-            req.branchId,
-            copyId,
-        ];
-        db.query(sql, values, (err) => {
+
+        const sql = 'SELECT isBorrowed FROM BOOK_COPY WHERE copyId = ?';
+        db.query(sql, [copyId], (err, results) => {
             if (err) return res.sendStatus(500);
-            res.sendStatus(201);
+            if (results.length === 0)
+                return res.send({ message: 'Book copy not found' }).status(400);
+            if (results[0].isBorrowed)
+                return res.send({ message: 'Book is borrowed' }).status(400);
+
+            const sql1 =
+                'BEGIN; \
+            INSERT INTO BORROW_BOOK_AT_BRANCH(copyId, customerName, citizenId, phoneNumber, address, staffId, branchId) VALUES (?,?,?,?,?,?,?); \
+            UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
+            COMMIT;';
+            const values = [
+                copyId,
+                userName,
+                idCard,
+                phoneNumber,
+                address,
+                req.userId,
+                req.branchId,
+                copyId,
+            ];
+            db.query(sql1, values, (err) => {
+                if (err) return res.sendStatus(500);
+                res.sendStatus(201);
+            });
         });
     }
 
@@ -207,26 +217,35 @@ class StaffController {
         const copyId = req.body.copyId;
         if (!userName || !copyId) return res.sendStatus(400);
 
-        const sql1 = 'SELECT userId FROM USER WHERE userName = ?';
-        db.query(sql1, [userName], (err, results) => {
-            if (!results[0]) return res.sendStatus(400);
+        const sql = 'SELECT isBorrowed FROM BOOK_COPY WHERE copyId = ?';
+        db.query(sql, [copyId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            if (results.length === 0)
+                return res.send({ message: 'Book copy not found' }).status(400);
+            if (results[0].isBorrowed)
+                return res.send({ message: 'Book is borrowed' }).status(400);
 
-            const sql2 =
-                'BEGIN;\
-                INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId, branchId) VALUE (?,?,?,?); \
-                UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
-                COMMIT';
-            const values = [
-                results[0].userId,
-                copyId,
-                req.userId,
-                req.branchId,
-                copyId,
-            ];
+            const sql1 = 'SELECT userId FROM USER WHERE userName = ?';
+            db.query(sql1, [userName], (err, results) => {
+                if (!results[0]) return res.sendStatus(400);
 
-            db.query(sql2, values, (err) => {
-                if (err) return res.sendStatus(500);
-                res.sendStatus(201);
+                const sql2 =
+                    'BEGIN;\
+                    INSERT INTO BORROW_BOOK_TO_GO(userId, copyId, staffId, branchId) VALUE (?,?,?,?); \
+                    UPDATE BOOK_COPY SET isBorrowed = TRUE WHERE copyId = ?;\
+                    COMMIT';
+                const values = [
+                    results[0].userId,
+                    copyId,
+                    req.userId,
+                    req.branchId,
+                    copyId,
+                ];
+
+                db.query(sql2, values, (err) => {
+                    if (err) return res.sendStatus(500);
+                    res.sendStatus(201);
+                });
             });
         });
     }

@@ -1,5 +1,5 @@
 const path = require('path');
-const { connection: db} = require('../config/db');
+const { connection: db } = require('../config/db');
 const cache = require('../service/cacheService');
 const fs = require('fs');
 const convertBookFormat = (books) => {
@@ -220,7 +220,7 @@ class CustomerController {
                 return res.sendStatus(500);
             }
             const books = convertBookFormat(results);
-            if(values.length == 0) cache.set('book', books, 100);
+            if (values.length == 0) cache.set('book', books, 100);
             res.json(books);
         });
     }
@@ -341,31 +341,18 @@ class CustomerController {
     }
 
     showBookBorrowing(req, res) {
-        const userName = req.body.userName;
-
-        const returnResult = (userID) => {
-            const sql =
-                'SELECT bc.copyId, b.title, bb.borrowingDate\
-            FROM bookborrowings AS bb\
-            JOIN book_Copy AS bc\
-            ON bb.copyId = bc.copyId\
-            JOIN book AS b\
-            ON bc.bookId = b.bookId\
-            WHERE bb.userId = ?';
-            db.query(sql, [userID], (err, results) => {
-                if (err) return res.sendStatus(500);
-                res.json(results);
-            });
-        };
-
-        if (userName) {
-            const sql1 = 'SELECT userId FROM user WHERE userName = ?';
-            db.query(sql1, [userName], (err, results) => {
-                if (err) return res.sendStatus(500);
-                if (!results[0]) return res.sendStatus(400);
-                returnResult(results[0].userId);
-            });
-        } else returnResult(req.userId);
+        const sql =
+            'SELECT bc.copyId, b.title, bb.borrowDate, bb.returnDate, bb.isReturn, bb.deposit\
+        FROM BORROW_BOOK_TO_GO AS bb\
+        JOIN BOOK_COPY AS bc\
+        ON bb.copyId = bc.copyId\
+        JOIN BOOK AS b\
+        ON bc.bookId = b.bookId\
+        WHERE bb.userId = ?';
+        db.query(sql, [req.userId], (err, results) => {
+            if (err) return res.sendStatus(500);
+            res.json(results);
+        });
     }
 }
 

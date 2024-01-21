@@ -1,6 +1,6 @@
 const handleErrorDB = (error, res) => {
     // return status code and error message using switch case
-    
+
     switch (error.code) {
         case 'ER_DUP_ENTRY':
             return res.status(409).send({ message: 'username already exists' });

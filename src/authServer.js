@@ -11,7 +11,6 @@ const { connection: db, connectionPK } = require('./config/db');
 const verifyToken = require('./middleware/auth');
 const { handleErrorDB, handleErrorJWT } = require('./helper/handleErrorHelper');
 
-
 // Body parser
 app.use(
     express.urlencoded({
@@ -45,7 +44,7 @@ const updateKeyPair = (userId, publicKey, privateKey) => {
     const sql2 = 'UPDATE PRIVATE_KEY SET privateKey = ? WHERE userId = ? ';
     db.query(sql1, [publicKey, userId]);
     connectionPK.query(sql2, [privateKey, userId]);
-}
+};
 
 const generateTokens = (payload, privateKey) => {
     const accessToken = jwt.sign(payload, privateKey, {
@@ -105,7 +104,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/token', (req, res) => {
-    const {refreshToken} = req.body;
+    const { refreshToken } = req.body;
     if (!refreshToken) return res.sendStatus(401);
 
     const values = [refreshToken];
@@ -138,7 +137,6 @@ app.post('/token', (req, res) => {
             } catch (error) {
                 return handleErrorJWT(error, res);
             }
-
         });
     });
 });
@@ -157,7 +155,7 @@ app.post('/signup', (req, res) => {
         req.body.userName,
         req.body.password,
         req.body.email,
-        req.body.address
+        req.body.address,
     ];
 
     db.query(sql, values, (err) => {

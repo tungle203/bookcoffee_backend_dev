@@ -7,7 +7,12 @@ const verifyCache = require('../middleware/cache');
 const uploadImage = require('../helper/uploadImageHelper');
 const adminController = require('../controllers/adminController');
 
-router.get('/showAuthor', verifyToken, verifyCache('author'), adminController.showAuthor);
+router.get(
+    '/showAuthor',
+    verifyToken,
+    verifyCache('author'),
+    adminController.showAuthor,
+);
 router.post(
     '/addAuthor',
     verifyToken,

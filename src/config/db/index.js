@@ -24,4 +24,4 @@ const connectionPK = mysql.createPool({
     multipleStatements: true,
 });
 //connect to database
-module.exports = {connection, connectionPK};
+module.exports = { connection, connectionPK };

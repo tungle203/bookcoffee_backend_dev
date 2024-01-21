@@ -12,8 +12,8 @@ const uploadImage = (imageName, path) => {
 
     const upload = multer({ storage: storage });
 
-    return function(req, res, next) {
-        upload.single(imageName) (req, res, next, (err) => {
+    return function (req, res, next) {
+        upload.single(imageName)(req, res, next, (err) => {
             if (err) {
                 return res.status(400).json({
                     message: err.message,

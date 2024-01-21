@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const { connection: db} = require('../config/db');
-const {handleErrorJWT} = require('../helper/handleErrorHelper');
+const { connection: db } = require('../config/db');
+const { handleErrorJWT } = require('../helper/handleErrorHelper');
 
 function verifyToken(req, res, next) {
     const authHeader = req.header('Authorization');
@@ -15,6 +15,7 @@ function verifyToken(req, res, next) {
     db.query(sql, [userId], (err, results) => {
         if (err) return handleErrorDB(err, res);
 
+        if (results.length === 0) return res.sendStatus(401);
         const publicKey = results[0].publicKey;
 
         try {
