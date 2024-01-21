@@ -1,4 +1,5 @@
 const { connection: db } = require('../config/db');
+const cache = require('../service/cacheService');
 
 class AdminController {
     showAuthor(req, res) {
@@ -8,6 +9,7 @@ class AdminController {
             if (err) {
                 return res.sendStatus(500);
             }
+            cache.set('author', results, 10000);
             res.json(results);
         });
     }
@@ -23,6 +25,7 @@ class AdminController {
             if (err) {
                 return res.sendStatus(500);
             }
+            cache.del('author');
             res.sendStatus(201);
         });
     }
@@ -71,6 +74,7 @@ class AdminController {
             if (err) {
                 return res.sendStatus(500);
             }
+            cache.del('branch');
             res.sendStatus(201);
         });
     }
@@ -112,6 +116,7 @@ class AdminController {
                 if (err) {
                     return res.sendStatus(500);
                 }
+                cache.del('book');
                 res.sendStatus(201);
             });
         });
@@ -184,6 +189,7 @@ class AdminController {
                 if (err) {
                     return res.sendStatus(500);
                 }
+                cache.del('book');
                 res.sendStatus(200);
             });
         });
@@ -214,6 +220,7 @@ class AdminController {
             if (err) {
                 return res.sendStatus(500);
             }
+            cache.del('drinks');
             res.sendStatus(201);
         });
     }

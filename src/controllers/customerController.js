@@ -220,7 +220,7 @@ class CustomerController {
                 return res.sendStatus(500);
             }
             const books = convertBookFormat(results);
-            cache.set('book', books, 100);
+            if(values.length == 0) cache.set('book', books, 100);
             res.json(books);
         });
     }
@@ -253,7 +253,7 @@ class CustomerController {
             if (err) {
                 return res.sendStatus(500);
             }
-            cache.set('branch', results);
+            cache.set('branch', results, 10000);
             res.json(results);
         });
     }

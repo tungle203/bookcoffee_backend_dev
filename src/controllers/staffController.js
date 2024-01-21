@@ -35,7 +35,7 @@ class StaffController {
             if (err) return res.sendStatus(500);
 
             const drinks = convertDrinksFormat(results);
-            cache.set('drinks', drinks);
+            cache.set('drinks', drinks, 10000);
             res.json(drinks);
         });
     }

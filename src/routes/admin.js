@@ -3,10 +3,11 @@ const router = express.Router();
 
 const verifyToken = require('../middleware/auth');
 const verifyPermission = require('../middleware/permission');
+const verifyCache = require('../middleware/cache');
 const uploadImage = require('../helper/uploadImageHelper');
 const adminController = require('../controllers/adminController');
 
-router.get('/showAuthor', verifyToken, adminController.showAuthor);
+router.get('/showAuthor', verifyToken, verifyCache('author'), adminController.showAuthor);
 router.post(
     '/addAuthor',
     verifyToken,
